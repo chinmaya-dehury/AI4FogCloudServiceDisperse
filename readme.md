@@ -10,8 +10,8 @@
 	- curl -X POST -F image=@traffic.jpg 'http://$IP:$PORT/api/detect' --output traffic_yolo.png
 
 ### 2) Application 2 - Text-audio synchronisation or forced alignment (Aeneas)
-- [ ] [Client Side](/app2/app2_client/)
-- [ ] [Server Side](/app2/app2_server/)
+- [x] [Client Side](/app2/app2_client/)
+- [x] [Server Side](/app2/app2_server/)
 - [x] [System Architecture](/app2/app2.png)
 - Testing scripts
 	- python3 -m aeneas.diagnostics
@@ -26,7 +26,7 @@
 
 
 
-## Related papers are here:
+## Related papers
 
 - Chinmaya Kumar Dehury*, Satish Narayana Srirama; “An efficient service dispersal mechanism for fog and cloud computing using deep reinforcement learning”; The 20th IEEE/ACM International Symposium on Cluster, Cloud and Internet Computing (CCGRID2020), 11-14 May 2020, Melbourne, Australia
 
