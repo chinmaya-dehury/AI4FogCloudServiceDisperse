@@ -1,0 +1,9 @@
+Flask
+pybase64
+jsonpickle
+pillow
+numpy
+pocketsphinx
+SpeechRecognition
+flask_caching
+psutil
