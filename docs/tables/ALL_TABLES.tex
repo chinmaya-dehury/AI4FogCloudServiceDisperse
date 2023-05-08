@@ -1,0 +1,138 @@
+\begin{table}[!ht]
+    \centering
+    \caption{TABLE OF NOTATION}
+    \begin{tabular}{| l | l | l |}
+        \hline
+        \bf{Notation} & \bf{Description} & \bf{Formula} \\
+        \hline
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%% GENERAL NOTATIONS
+        $n$ & number of connected users & $-$\\
+        \hline    
+        ${U}$ & set of connected users & $U = \{u_1, u_2, .., u_i, .., u_n\} {\text{ for each }} u_i -> 0 < i \leq n$\\
+        \hline
+        ${u_i}$ & connected user i & $-$\\
+        \hline    
+        G & smart gateway & $-$\\
+        \hline
+        F & fog environment & $-$ \\
+        \hline
+        FN & fog node & $-$ \\
+        \hline
+        C & cloud environment & $-$ \\
+        \hline
+        $m$ & total number of services & $-$\\
+        \hline    
+        ${S}$ & set of services & $S = \{s_1, s_2, .., s_k, .., s_m\} {\text{ for each }} s_k -> 0 < k \leq m$\\
+        \hline
+        ${s_k}$ & service k & $-$\\
+        \hline    
+        ${\tilde{s}_i^k}$ & number of slices for $s_k$ from $u_i$ & $-$\\
+        \hline    
+        ${u_i(s_k)}$ & boolean means $u_i$ availing $s_k$ & ${u_i(s_k)} = 
+            \begin{cases}
+                1 \text{ - if $u_i$ avail $s_k$ }
+                \\
+                0 \text{ - otherwise}
+            \end{cases}$\\
+        \hline    
+        ${u_i(\bar{s}_k)}$ & size of $s_k$ & $-$\\
+        \hline    
+        ${D({s}_k)}$ & demand of $s_k$ & $u_i(\tilde{s}_k) * u_i(s_k)$\\
+        \hline    
+        ${u_i(\tilde{R}_k^x)}$ & base resource req. of $s_k$ & $-$\\
+        \hline    
+        ${u_i(\hat{R}_k^x)}$ & auxiliary resource demand of $s_k$ & $-$\\
+        \hline    
+        ${u_i(R_k^x)}$ & total resource req. of $s_k$ & $
+            \begin{cases}
+                x = \{CPU, MEM, BANDWITH\}
+                \\
+                u_i(R_k^x) = u_i({\tilde{R}}_k^x) + u_i({\hat{R}}_k^x)
+            \end{cases}$\\
+        \hline    
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%% RELATED NOTATIONS
+        ${\gamma}_{i}$ & RTD from $u_i$ to $G$ & $-$\\
+        \hline    
+        ${\gamma}_{f}$ & RTD from $G$ to $FN$ & $-$\\
+        \hline    
+        ${\gamma}_{c}$ & RTD from $FN$ to $C$ & $-$\\
+        \hline
+    
+        $(p_i, q_i)$ & location coordinate of $u_i$ & $-$\\
+        \hline    
+        $(p_g, q_g)$ & location coordinate of $G$ & $-$\\
+        \hline    
+        $(p_f, q_f)$ & location coordinate of $FN$ & $-$\\
+        \hline    
+    
+        $d_i$ & distance of $u_i$ from $G$ & $d_i = \sqrt{(p_i - p_g)^2 + (q_i-q_g)^2}$\\
+        \hline    
+        $d_g$ & distance of $G$ from $FN$ & $d_g = \sqrt{(p_g - p_f)^2 + (q_g-q_f)^2}$\\
+        \hline    
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%% PRIORITY NOTATIONS
+        $\mu_i^{\gamma}$ & latency-based priority of $u_i$ & $\mu_i^{\gamma} =  \frac{\gamma_i}{\max(\gamma_i, 0 < i \leq n)}$\\
+        \hline    
+        $\mu_i^d$ & distance-based priority of $u_i$ & $\mu_i^d = \frac{d_i+d_g}{D}. \text{D - max comm. range}$\\
+        \hline    
+        $\mu_i$ & priority of $u_i$ & $\mu_i = \mu_i^{\gamma} + \mu_i^d $\\
+        \hline    
+        $\mu_k^s$ & priority of $s_k$ & $\mu_k^s = \mu_i * u_i(\bar{s}_k) + D(s_k)$\\
+        \hline    
+        $\tilde{\mu}_k^s$ & sensitivity of $s_k$, decided by $G$ & $0 < \tilde{\mu}_k^s \leq 1$\\
+        \hline    
+    \end{tabular}
+    \label{tab:statements}
+    \end{table}
+
+
+
+    \begin{table}[!ht]
+        \centering
+        \caption{TABLE OF NOTATION}
+        \begin{tabular}{| l | l | l |}
+            \hline
+            \bf{Notation} & \bf{Description} & \bf{Formula} \\
+            \hline
+            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%% DRL NOTATIONS
+            $t^f_{exec}$ & execution time of $s_k$ in $FN$ & $-$\\
+            \hline   
+            $t^c_{exec}$ & execution time of $s_k$ in $C$ & $-$\\
+            \hline   
+            $t^f_{avg}$ & average response time for $FN$ & $-$\\
+            \hline   
+            $t^c_{avg}$ & average response time for $C$ & $-$\\
+            \hline   
+            $f(s^i_{j,k})$ & boolean, assigned $FN$ & $-$\\
+            \hline   
+            $c(s^i_{j,k})$ & boolean, assigned $C$ & $-$\\
+            \hline   
+            $L_m^f(s^k_{i,j})$ & comm. reward on $FN$ & $L_m^f(s^k_{i,j})=\mu_i+\gamma_f + (t^f_{exec}-t^f_{avg})$\\
+            \hline   
+            $L_m^c(s^k_{i,j})$ & comm. reward on $C$ & $L_m^c(s^k_{i,j})=\mu_i+\gamma_c + (t^c_{exec}-t^c_{avg})$\\
+            \hline   
+            $L_c^f(s^k_{i,j})$ & comp. reward on $FN$ & $L_f^c(s^k_{i,j})=(u_i(\bar{s}_{k,j}) + u_i(R^x_{k,j})) * (\mu^s_k + \bar{\mu}^s_k)$\\
+            \hline   
+            $L_c^c(s^k_{i,j})$ & comp. reward on $C$ & $L_c^c(s^k_{i,j})=(u_i(\bar{s}_{k,j}) + u_i(R^x_{k,j})) * \mu^s_k$\\
+            \hline   
+            $\hat{R}_f(s^k_i)$ & total reward for $FN$ & $\hat{R}_f(s^k_i) = f(s^i_{j,k}) * (L_m^f(s^k_{i,j}) + L_c^f(s^k_{i,j}))$\\
+            \hline   
+            $\hat{R}_c(s^k_i)$ & total reward for $C$ & $\hat{R}_c(s^k_i) = c(s^i_{j,k}) * (L_m^c(s^k_{i,j}) + L_c^c(s^k_{i,j}))$\\
+            \hline   
+            $\hat{R}(s^k_i)$ & total reward & $\hat{R}(s^k_i) = \hat{R}_f(s^k_i) + \hat{R}_c(s^k_i)$\\
+            \hline   
+            $\hat{A}$ & action space & all possible movements\\
+            \hline   
+            $\hat{S}$ & state space & 
+                $\begin{cases}
+                    <0, 0> \text{ - the slice is not assigned}
+                    \\
+                    <1, 0> \text{ - the slice is assigned to fog}
+                    \\
+                    <0, 1> \text{ - the slice is assigned to cloud}
+                    \\
+                    <1, 1> \text{ - invalid state}
+                \end{cases}$\\
+            \hline   
+        \end{tabular}
+        \label{tab:statements2}
+        \end{table}

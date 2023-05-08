@@ -4,3 +4,5 @@ jsonpickle
 pillow
 numpy
 opencv-contrib-python
+psutil
+Flask-Caching

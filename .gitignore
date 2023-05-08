@@ -1,0 +1,14 @@
+# ignore all
+*.mp3
+*.mp4
+*.wav
+*.weights
+*.txt
+__pycache__
+state_spaces
+models
+
+# not ignore followings
+!drl/input/*
+!app2/app2_client/input/input1/*.mp3
+!app3/app3_client/input/input1/*.mp3

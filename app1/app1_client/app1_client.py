@@ -7,7 +7,7 @@ from PIL import Image
 from io import BytesIO
 
 VIDEO_INPUT_PATH = "input/traffic.mp4"
-FOG_API_ENDPOINT = "http://localhost:80/api/detect"
+FOG_API_ENDPOINT = "http://172.17.142.22:30000/api/detect"
 CLOUD_API_ENDPOINT = "http://172.17.90.194:80/api/detect"
 
 def frame_to_bts(frame):

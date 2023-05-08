@@ -1,0 +1,96 @@
+\begin{table}[!ht]
+    \centering
+    \caption{TABLE OF NOTATION}
+    \begin{tabular}{| l | l | l |}
+        \hline
+        \bf{Notation} & \bf{Description} & \bf{Formula} \\
+        \hline
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%% GENERAL NOTATIONS
+        $n$ & number of connected users & $-$\\
+        \hline    
+        ${U}$ & set of connected users & $U = \{u_1, u_2, .., u_i, .., u_n\} {\text{ for each }} u_i -> 0 < i \leq n$\\
+        \hline
+        ${u_i}$ & connected user i & $-$\\
+        \hline    
+        G & smart gateway & $-$\\
+        \hline
+        F & fog environment & $-$ \\
+        \hline
+        FN & fog node & $-$ \\
+        \hline
+        C & cloud environment & $-$ \\
+        \hline
+        $m$ & total number of services & $-$\\
+        \hline    
+        ${S}$ & set of services & $S = \{s_1, s_2, .., s_k, .., s_m\} {\text{ for each }} s_k -> 0 < k \leq m$\\
+        \hline
+        ${s_k}$ & service k & $-$\\
+        \hline    
+        $+ {\tilde{s}_i^k}$ & - & $  u_i(\bar{s}_k)/SD({s}_k)$\\
+        \hline    
+        ${u_i(s_k)}$ & boolean means $u_i$ availing $s_k$ & ${u_i(s_k)} = 
+            \begin{cases}
+                1 \text{ - if $u_i$ avail $s_k$ }
+                \\
+                0 \text{ - otherwise}
+            \end{cases}$\\
+        \hline    
+        ${u_i(\bar{s}_k)}$ & size of $s_k$ & $-$\\
+        \hline    
+        ${SD({s}_k)}$ & demand of $s_k$ & $sum(u_i(\tilde{s}_k) * u_i(s_k))$\\
+        \hline    
+        ${+ u_i(R_{f,k}^x)}$ & resource usage of $s_k$ in $FN$ & $x = \{CPU, MEM, BANDWITH, ENERGY\}$\\
+        \hline    
+        ${+ u_i(R_{c,k}^x)}$ & resource usage of $s_k$ in $C$ & $x = \{CPU, MEM, BANDWITH, ENERGY\}$\\
+        \hline 
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%% RELATED NOTATIONS
+        ${\gamma}_{i}$ & RTD from $u_i$ to $G$ & $-$\\
+        \hline    
+        ${\gamma}_{f}$ & RTD from $G$ to $FN$ & $-$\\
+        \hline    
+        ${\gamma}_{c}$ & RTD from $G$ to $C$ & $-$\\
+        \hline
+    
+        $+(p_i, q_i)$ & location coordinate of $u_i$ & latitude and longitude\\
+        \hline    
+        $+(p_g, q_g)$ & location coordinate of $G$ & latitude and longitude\\
+        \hline    
+    
+        $d_i$ & distance of $u_i$ from $G$ & haversine formula\\
+        \hline    
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%% PRIORITY NOTATIONS
+        $P^{\mu}_{i}$ & latency-based priority of $u_i$ & $\mu_i^{\gamma} =  \frac{\gamma_i}{\max(\gamma_i, 0 < i \leq n)}$\\
+        \hline
+        $P^{d}_{i}$ & distance-based priority of $u_i$ & $-$\\
+        \hline    
+        $\mu_i$ & priority of $u_i$ & $\mu_i = \mu_i^{\gamma} + \mu_i^d $\\
+        \hline    
+        $\mu_k^s$ & priority of $s_k$ & $\mu_k^s = \mu_i * u_i(\bar{s}_k) + SD(s_k)$\\
+        \hline    
+        $\tilde{\mu}_k^s$ & sensitivity of $s_k$, decided by $G$ & $0 < \tilde{\mu}_k^s \leq 1$\\
+        \hline    
+        $f(s^i_{j,k})$ & boolean, assigned $FN$ & $-$\\
+        \hline   
+        $c(s^i_{j,k})$ & boolean, assigned $C$ & $-$\\
+        \hline      
+        $+\hat{R}(s^k_i)$ & total reward & $-$\\
+        \hline   
+        $\hat{A}$ & action space & all possible movements\\
+        \hline   
+        $\hat{S}$ & state space & $-$\\
+        \hline   
+    \end{tabular}
+    \label{tab:statements}
+    \end{table}
+
+\hfill \break
+
+$Throughput = u_i(\bar{s}_k) / t_{exec}$
+
+\hfill \break
+
+number of slices for $s_k$. no of slices fixed, size of slice can be vary
+
+\hfill \break
+
+$ \hat{R}(s^k_i) = w_1 * \mu_i + w_2 * \mu^s_k + w_3 * \tilde{\mu}_k^s - w_4 * f(s^i_k) * (\gamma_f + u_i(R_{f,k}^x)) - w_5 * c(s^i_k) * (\gamma_c + u_i(R_{c,k}^x)) + w_6 * (Throughput) $

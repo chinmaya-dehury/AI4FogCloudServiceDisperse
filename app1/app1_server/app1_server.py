@@ -1,166 +1,191 @@
-import numpy as np
-import argparse
-import time
-import cv2
 import os
+import cv2
+import time
+import uuid
+import psutil
+import traceback
+import logging
+from logging.handlers import RotatingFileHandler
+import numpy as np
+from time import perf_counter
 from flask import Flask, request, Response, jsonify
-import jsonpickle
-#import binascii
-import io as StringIO
-import base64
-from io import BytesIO
-import io
-import json
-from PIL import Image
 
-# construct the argument parse and parse the arguments
+YOLO_CONFIG_PATH = os.getenv('YOLO_CONFIG')
+YOLO_WEIGHTS_PATH = os.getenv('YOLO_WEIGHTS')
+YOLO_LABELS_PATH = os.getenv('YOLO_COCO_NAMES')
 
-confthres = 0.3
-nmsthres = 0.1
-yolo_path = './'
-
-def get_labels(labels_path):
-    # load the COCO class labels our YOLO model was trained on
-    #labelsPath = os.path.sep.join([yolo_path, "yolo_v3/coco.names"])
-    lpath=os.path.sep.join([yolo_path, labels_path])
-    LABELS = open(lpath).read().strip().split("\n")
-    return LABELS
-
-def get_colors(LABELS):
-    # initialize a list of colors to represent each possible class label
-    np.random.seed(42)
-    COLORS = np.random.randint(0, 255, size=(len(LABELS), 3),dtype="uint8")
-    return COLORS
-
-def get_weights(weights_path):
-    # derive the paths to the YOLO weights and model configuration
-    weightsPath = os.path.sep.join([yolo_path, weights_path])
-    return weightsPath
-
-def get_config(config_path):
-    configPath = os.path.sep.join([yolo_path, config_path])
-    return configPath
-
-def load_model(configpath,weightspath):
-    # load our YOLO object detector trained on COCO dataset (80 classes)
-    print("[INFO] loading YOLO from disk...")
-    net = cv2.dnn.readNetFromDarknet(configpath, weightspath)
-    return net
-
-
-def image_to_byte_array(image:Image):
-  imgByteArr = io.BytesIO()
-  image.save(imgByteArr, format='PNG')
-  imgByteArr = imgByteArr.getvalue()
-  return imgByteArr
-
-
-def get_predection(image,net,LABELS,COLORS):
-    (H, W) = image.shape[:2]
-
-    # determine only the *output* layer names that we need from YOLO
-    ln = net.getLayerNames()
-    ln = [ln[i - 1] for i in net.getUnconnectedOutLayers()]
-
-    # construct a blob from the input image and then perform a forward
-    # pass of the YOLO object detector, giving us our bounding boxes and
-    # associated probabilities
-    blob = cv2.dnn.blobFromImage(image, 1 / 255.0, (416, 416),
-                                 swapRB=True, crop=False)
-    net.setInput(blob)
-    start = time.time()
-    layerOutputs = net.forward(ln)
-    print(layerOutputs)
-    end = time.time()
-
-    # show timing information on YOLO
-    print("[INFO] YOLO took {:.6f} seconds".format(end - start))
-
-    # initialize our lists of detected bounding boxes, confidences, and
-    # class IDs, respectively
-    boxes = []
-    confidences = []
-    classIDs = []
-
-    # loop over each of the layer outputs
-    for output in layerOutputs:
-        # loop over each of the detections
-        for detection in output:
-            # extract the class ID and confidence (i.e., probability) of
-            # the current object detection
-            scores = detection[5:]
-            # print(scores)
-            classID = np.argmax(scores)
-            # print(classID)
-            confidence = scores[classID]
-
-            # filter out weak predictions by ensuring the detected
-            # probability is greater than the minimum probability
-            if confidence > confthres:
-                # scale the bounding box coordinates back relative to the
-                # size of the image, keeping in mind that YOLO actually
-                # returns the center (x, y)-coordinates of the bounding
-                # box followed by the boxes' width and height
-                box = detection[0:4] * np.array([W, H, W, H])
-                (centerX, centerY, width, height) = box.astype("int")
-
-                # use the center (x, y)-coordinates to derive the top and
-                # and left corner of the bounding box
-                x = int(centerX - (width / 2))
-                y = int(centerY - (height / 2))
-
-                # update our list of bounding box coordinates, confidences,
-                # and class IDs
-                boxes.append([x, y, int(width), int(height)])
-                confidences.append(float(confidence))
-                classIDs.append(classID)
-
-    # apply non-maxima suppression to suppress weak, overlapping bounding
-    # boxes
-    idxs = cv2.dnn.NMSBoxes(boxes, confidences, confthres,
-                            nmsthres)
-
-    # ensure at least one detection exists
-    if len(idxs) > 0:
-        # loop over the indexes we are keeping
-        for i in idxs.flatten():
-            # extract the bounding box coordinates
-            (x, y) = (boxes[i][0], boxes[i][1])
-            (w, h) = (boxes[i][2], boxes[i][3])
-
-            # draw a bounding box rectangle and label on the image
-            color = [int(c) for c in COLORS[classIDs[i]]]
-            cv2.rectangle(image, (x, y), (x + w, y + h), color, 2)
-            text = "{}: {:.4f}".format(LABELS[classIDs[i]], confidences[i])
-            print(boxes)
-            print(classIDs)
-            cv2.putText(image, text, (x, y - 5), cv2.FONT_HERSHEY_SIMPLEX,0.5, color, 2)
-    return image
-
-
-labelsPath=os.getenv('YOLO_COCO_NAMES')
-cfgpath=os.getenv('YOLO_CONFIG')
-wpath=os.getenv('YOLO_WEIGHTS')
-Lables=get_labels(labelsPath)
-CFG=get_config(cfgpath)
-Weights=get_weights(wpath)
-nets=load_model(CFG,Weights)
-Colors=get_colors(Lables)
 # Initialize the Flask application
 app = Flask(__name__)
 
-@app.route('/api/detect', methods=['POST'])
-def main():
-    img = request.files["image"].read()
-    img = Image.open(io.BytesIO(img))
-    npimg=np.array(img)
-    image=npimg.copy()
-    image=cv2.cvtColor(image,cv2.COLOR_BGR2RGB)
-    res=get_predection(image,nets,Lables,Colors)
-    image=cv2.cvtColor(res,cv2.COLOR_BGR2RGB)
-    np_img=Image.fromarray(image)
-    img_encoded=image_to_byte_array(np_img)
-    return Response(response=img_encoded, status=200,mimetype="image/jpeg")
+# Configure logging to a file
+handler = RotatingFileHandler('flask_error.log', maxBytes=10000, backupCount=1)
+handler.setLevel(logging.ERROR)
+app.logger.addHandler(handler)
+
+# Define an error handler for all exceptions
+@app.errorhandler(Exception)
+def handle_exception(error):
+    trace = traceback.format_exc()
+    app.logger.error('Unhandled exception! Error: %s, Trace: %s', error, trace)
+    return f'Internal Server Error: {error}', 500
+
+@app.route('/api/sync', methods=['POST'])
+def detect():
+    mainfolder = '..'
+    
+    unique_filename = str(uuid.uuid4())
+    
+    unique_input_video_name = f'{mainfolder}/input-{unique_filename}.mp4'
+    unique_output_video_name = f'{mainfolder}/output-{unique_filename}.mp4'
+
+    video_file = request.files["video"].read()
+
+    # save video in fs
+    with open(unique_input_video_name, "wb") as binary_file:
+        # Write bytes to file
+        binary_file.write(video_file)
+        app.logger.error('LINE 196. Video file is written to the disk!!!')
+    
+    video_file = cv2.VideoCapture(unique_input_video_name)
+
+    # initialize minimum probability to eliminate weak predictions
+    p_min = 0.5
+
+    # threshold when applying non-maxia suppression
+    thres = 0.
+
+    # Preparing variable for writer
+    # that we will use to write processed frames
+    writer = None
+
+    # Preparing variables for spatial dimensions of the frames
+    h, w = None, None
+
+    # Create labels into list
+    with open(YOLO_LABELS_PATH) as f:
+        labels = [line.strip() for line in f]
+        app.logger.error(f'LINE 216. LABELS are loaded succesfully ({labels})')
+    # Initialize colours for representing every detected object
+    colours = np.random.randint(0, 255, size=(len(labels), 3), dtype='uint8')
+
+    # Loading trained YOLO v3 Objects Detector
+    # with the help of 'dnn' library from OpenCV
+    # Reads a network model stored in Darknet model files.
+    network = cv2.dnn.readNetFromDarknet(YOLO_CONFIG_PATH, YOLO_WEIGHTS_PATH)
+    app.logger.error(f'LINE 224. Config and Weights are loaded succesfully ({network})')
+
+    # Getting only output layer names that we need from YOLO
+    ln = network.getLayerNames()
+    ln = [ln[i - 1] for i in network.getUnconnectedOutLayers()]
+
+    # Defining loop for catching frames
+    while True:
+        ret, frame = video_file.read()
+        if not ret:
+            app.logger.error('LINE 106. RET IS NULL!!!')
+            break
+
+        # Getting dimensions of the frame for once as everytime dimensions will be same
+        if w is None or h is None:
+            # Slicing and get height, width of the image
+            h, w = frame.shape[:2]
+
+        # frame preprocessing for deep learning
+        blob = cv2.dnn.blobFromImage(frame, 1 / 255.0, (416, 416), swapRB=True, crop=False)
+
+        # perform a forward pass of the YOLO object detector, giving us our bounding boxes
+        # and associated probabilities.
+        network.setInput(blob)
+        output_from_network = network.forward(ln)
+
+        # Preparing lists for detected bounding boxes, confidences and class numbers.
+        bounding_boxes = []
+        confidences = []
+        class_numbers = []
+
+        # Going through all output layers after feed forward pass
+        for result in output_from_network:
+            for detected_objects in result:
+                scores = detected_objects[5:]
+                class_current = np.argmax(scores)
+                confidence_current = scores[class_current]
+
+                if confidence_current > p_min:
+                    box_current = detected_objects[0:4] * np.array([w, h, w, h])
+
+                    # Now, from YOLO data format, we can get top left corner coordinates
+                    # that are x_min and y_min
+                    x_center, y_center, box_width, box_height = box_current
+                    x_min = int(x_center - (box_width / 2))
+                    y_min = int(y_center - (box_height / 2))
+
+                    # Adding results into prepared lists
+                    bounding_boxes.append([x_min, y_min, int(box_width), int(box_height)])
+                    confidences.append(float(confidence_current))
+                    class_numbers.append(class_current)
+
+        # Implementing non-maximum suppression of given bounding boxes
+        # With this technique we exclude some of bounding boxes if their
+        # corresponding confidences are low or there is another
+        # bounding box for this region with higher confidence
+        results = cv2.dnn.NMSBoxes(bounding_boxes, confidences, p_min, thres)
+
+        # At-least one detection should exists
+        if len(results) > 0:
+            for i in results.flatten():
+                # Getting current bounding box coordinates, its width and height
+                x_min, y_min = bounding_boxes[i][0], bounding_boxes[i][1]
+                box_width, box_height = bounding_boxes[i][2], bounding_boxes[i][3]
+
+                # Preparing colour for current bounding box
+                colour_box_current = colours[class_numbers[i]].tolist()
+
+                # Drawing bounding box on the original image
+                cv2.rectangle(frame, (x_min, y_min), (x_min + box_width, y_min + box_height), colour_box_current, 2)
+
+                # Preparing text with label and confidence for current bounding box
+                text_box_current = '{}: {:.4f}'.format(labels[int(class_numbers[i])],
+                                                    confidences[i])
+
+                # Putting text with label and confidence on the original image
+                cv2.putText(frame, text_box_current, (x_min, y_min - 5), cv2.FONT_HERSHEY_COMPLEX, 0.7, colour_box_current, 2)
+
+        """Store proccessed frames into result video."""
+        # Initialize writer
+        if writer is None:
+            resultVideo = cv2.VideoWriter_fourcc(*'mp4v')
+
+            # Writing current processed frame into the video file
+            writer = cv2.VideoWriter(unique_output_video_name, resultVideo, 30,(frame.shape[1], frame.shape[0]), True)
+            app.logger.error('LINE 182. Writer is created')
+
+        # Write processed current frame to the file
+        writer.write(frame)
+
+    # Releasing video reader and writer
+    video_file.release()
+    if writer is not None:
+        writer.release()
+        app.logger.error('LINE 189. Writer is released')
+
+    # Return video
+    output = []
+    file = open(unique_output_video_name, "rb")
+    byte = file.read(1)
+    output.append(byte)
+    while byte:
+        byte = file.read(1)
+        output.append(byte)
+    file.close()
+
+    if os.path.exists(unique_input_video_name):
+        os.remove(unique_input_video_name)
+        app.logger.error('LINE 332. Input Video file is removed from the disk!!!')
+    if os.path.exists(unique_output_video_name):
+        os.remove(unique_output_video_name)
+        app.logger.error('LINE 335. Output Video file is removed from the disk!!!')
+
+    return Response(response=output, status=200,mimetype="video/mp4")
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0')
+    app.run(debug=True, host='0.0.0.0', port=5002)
