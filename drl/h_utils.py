@@ -2,6 +2,7 @@ import os
 import ast
 import random
 import shutil
+import numpy as np
 import pandas as pd
 from datetime import datetime
 import matplotlib.pyplot as plt
@@ -10,7 +11,8 @@ from c_env_cloud import Cloud
 from c_env_fog import Fog
 from h_configs import Params, PLOT_FOLDER, LOG_FOLDER, LOG_OUTPUT_PATH, \
     PLOT_LOG_REWARDS_OUTPUT_PATH, PLOT_LOG_LOSSES_OUTPUT_PATH, PLOT_LOG_SUCCESS_OUTPUT_PATH, \
-    PLOT_PNG_REWARDS_OUTPUT_PATH, PLOT_PNG_LOSSES_OUTPUT_PATH, PLOT_PNG_TOGETHER_OUTPUT_PATH, PLOT_PNG_SUCCESS_OUTPUT_PATH \
+    PLOT_PNG_REWARDS_OUTPUT_PATH, PLOT_PNG_LOSSES_OUTPUT_PATH, PLOT_PNG_TOGETHER_OUTPUT_PATH, PLOT_PNG_SUCCESS_OUTPUT_PATH, \
+    PLOT_LOG_FOG_PERCENTAGE_OUTPUT_PATH, PLOT_LOG_CLOUD_PERCENTAGE_OUTPUT_PATH, PLOT_PNG_FOG_PERCENTAGE_OUTPUT_PATH, PLOT_PNG_CLOUD_PERCENTAGE_OUTPUT_PATH
 
 ############################################################################################################ OTHER HELPER FUNCTIONS
 
@@ -64,6 +66,24 @@ def get_success_log_file():
 
     return log_file     
 
+def get_fog_percentage_log_file():
+    # create log folder if not exists
+    if not os.path.exists(PLOT_FOLDER):
+         os.makedirs(PLOT_FOLDER)
+
+    log_file = PLOT_LOG_FOG_PERCENTAGE_OUTPUT_PATH.format(PLOT_FOLDER, Params.get_params()['service_count'], Params.get_params()['slice_count'])
+
+    return log_file     
+
+def get_cloud_percentage_log_file():
+    # create log folder if not exists
+    if not os.path.exists(PLOT_FOLDER):
+         os.makedirs(PLOT_FOLDER)
+
+    log_file = PLOT_LOG_CLOUD_PERCENTAGE_OUTPUT_PATH.format(PLOT_FOLDER, Params.get_params()['service_count'], Params.get_params()['slice_count'])
+
+    return log_file  
+
 def get_rewards_plot_file():
     # create log folder if not exists
     if not os.path.exists(PLOT_FOLDER):
@@ -97,6 +117,24 @@ def get_success_plot_file():
          os.makedirs(PLOT_FOLDER)
 
     plot_file = PLOT_PNG_SUCCESS_OUTPUT_PATH.format(PLOT_FOLDER, Params.get_params()['service_count'], Params.get_params()['slice_count'])
+
+    return plot_file
+
+def get_fog_percentage_plot_file():
+    # create log folder if not exists
+    if not os.path.exists(PLOT_FOLDER):
+         os.makedirs(PLOT_FOLDER)
+
+    plot_file = PLOT_PNG_FOG_PERCENTAGE_OUTPUT_PATH.format(PLOT_FOLDER, 0, 0)
+
+    return plot_file
+
+def get_cloud_percentage_plot_file():
+    # create log folder if not exists
+    if not os.path.exists(PLOT_FOLDER):
+         os.makedirs(PLOT_FOLDER)
+
+    plot_file = PLOT_PNG_CLOUD_PERCENTAGE_OUTPUT_PATH.format(PLOT_FOLDER, 0, 0)
 
     return plot_file
 
@@ -238,6 +276,41 @@ def debug_success_rates(sucess_rates, is_printable=False):
     if (is_printable):
         print(sucess_rates_text)
 
+def debug_fog_percentage(percentages, is_printable=False):
+    log_file = get_fog_percentage_log_file()
+
+    # write to log
+    logfile = open(log_file, "w")
+    percentages_text = '['
+    for success in percentages:
+        percentages_text += f'{success},'
+    percentages_text += ']'
+    logfile.write(percentages_text)
+    logfile.write("\n")
+    logfile.close()
+	
+    # print to console
+    if (is_printable):
+        print(percentages_text)
+
+def debug_cloud_percentage(percentages, is_printable=False):
+    log_file = get_fog_percentage_log_file()
+
+    # write to log
+    logfile = open(log_file, "w")
+    percentages_text = '['
+    for success in percentages:
+        percentages_text += f'{success},'
+    percentages_text += ']'
+    logfile.write(percentages_text)
+    logfile.write("\n")
+    logfile.close()
+	
+    # print to console
+    if (is_printable):
+        print(percentages_text)
+
+
 #################################################################################################################### PLOTTING
 
 def f_read_plot_list(path):
@@ -258,11 +331,6 @@ def f_save_plot_list(elements, x_title, y_title, output_path):
     plt.tight_layout()
     plt.savefig(output_path, dpi=300)
     plt.close()
-    # plt.plot(elements)
-    # plt.xlabel(x_title)
-    # plt.ylabel(y_title)
-    # plt.savefig(output_path)
-    # plt.close("all")
 
 def f_save_plot_lists(num_iterations, rewards, losses, output_path):
     data = pd.DataFrame({'Iteration': range(num_iterations), 'Reward': rewards, 'Loss': losses})
@@ -276,4 +344,19 @@ def f_save_plot_lists(num_iterations, rewards, losses, output_path):
     plt.title('Training Performance')
     plt.legend()
     plt.savefig(output_path)
+    plt.close("all")
+
+def f_save_plot_bar(n_services, env_percentages, env_name, output_path, label='Proposed Work'):
+    total_percentage = np.arange(len(env_percentages))
+    _, ax = plt.subplots()
+    bar_width = 0.35
+    ax.bar(total_percentage - bar_width/2, env_percentages, bar_width, color='skyblue', edgecolor='gray', label=label)
+    #ax.bar(x + bar_width/2, y2, bar_width, color='lightgreen', edgecolor='gray', label='Bar 2')
+    ax.set_xticks(total_percentage)
+    ax.set_xticklabels(n_services)
+    ax.set_ylabel(f"%age of slices in {env_name}")
+    ax.legend()
+    plt.grid(axis='both', linestyle='--', alpha=0.7)
+    plt.tight_layout()
+    plt.savefig(output_path, dpi=300)
     plt.close("all")

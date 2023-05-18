@@ -1,8 +1,8 @@
 TRAINING_SERVICE_SLICE_PAIRS = {
-     '2-2': [2, 2],
+    '2-2': [2, 2],
     # '2-3': [2, 3],
     # '2-4': [2, 4],
-     '3-2': [3, 2],
+    # '3-2': [3, 2],
     # '3-3': [3, 3],
     # '4-2': [4, 2],
     # '4-3': [4, 3],
@@ -39,10 +39,14 @@ LOG_OUTPUT_PATH = '{}/log_{}.txt'
 PLOT_LOG_REWARDS_OUTPUT_PATH = '{}/{}_{}_rewards.txt'
 PLOT_LOG_LOSSES_OUTPUT_PATH = '{}/{}_{}_losses.txt'
 PLOT_LOG_SUCCESS_OUTPUT_PATH = '{}/{}_{}_success_rates.txt'
+PLOT_LOG_FOG_PERCENTAGE_OUTPUT_PATH = '{}/{}_{}_fog_percentage.txt'
+PLOT_LOG_CLOUD_PERCENTAGE_OUTPUT_PATH = '{}/{}_{}_cloud_percentage.txt'
 PLOT_PNG_REWARDS_OUTPUT_PATH = '{}/{}_{}_rewards.png'
 PLOT_PNG_LOSSES_OUTPUT_PATH = '{}/{}_{}_losses.png'
 PLOT_PNG_TOGETHER_OUTPUT_PATH = '{}/{}_{}_together.png'
 PLOT_PNG_SUCCESS_OUTPUT_PATH = '{}/{}_{}_success_rates.png'
+PLOT_PNG_FOG_PERCENTAGE_OUTPUT_PATH = '{}/{}_{}_fog_percentage.png'
+PLOT_PNG_CLOUD_PERCENTAGE_OUTPUT_PATH = '{}/{}_{}_cloud_percentage.png'
 
 MODEL_OUTPUT_PATH = '{}/model_{}_{}_{}.pth'
 
@@ -106,11 +110,17 @@ SERVICE3_CLOUD_ENDPOINT = f"{ENDPOINT_BASE}://{CLOUD_IP}:{SERVICE3_CLOUD_PORT}/{
 
 ########################################################################################################## DRL CONFIGS
 EPISODES = 10_000
-AGENT_BATCH_SIZE = 32
-AGENT_MAX_MEMORY = 1_000_000
+STEPS = 100
+AGENT_BATCH_SIZE = 64
+AGENT_MAX_MEMORY = 5_000
 AGENT_LEARNING_RATE = 0.001
 AGENT_DISCOUNT_RATE = 0.99
 AGENT_EPSILON = 1
+W1 = 0.2
+W2 = 0.2
+W3 = 0.2
+W4 = 0.2
+W5 = 0.2
 
 ########################################################################################################## SIMULATION CONFIGS
 # NOTE: It is good approach to test DRL Model in simulation mod before testing it in real environment.

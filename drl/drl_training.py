@@ -1,3 +1,4 @@
+import time
 import torch
 import numpy as np
 from c_user_factory import generate_users
@@ -6,7 +7,7 @@ from c_system_modelling import set_users_priorities, get_efficient_times_to_allo
 from drl_agent_factory import generate_agent
 from drl_environment import Environment
 import h_utils as utils
-from h_configs import EPISODES, Params
+from h_configs import STEPS, EPISODES, TRAINING_SERVICE_SLICE_PAIRS, Params
 import h_utils_state_space as ssutils
 
 def train():
@@ -31,22 +32,19 @@ def train():
     agent = generate_agent(input_layer_size, hidden_layer_size, output_layer_size)
 
     # start training
+    efficient_times = 1
     episode_rewards = []
     episode_losses = []
     episode_success = []
     total_episode_reward = 0
     total_episode_loss = 0
     total_episode_success = 0
+    slices_tracker = None
     for episode in range(EPISODES):
         # increment agent episodeations
         agent.n_iterations += 1
 
         if (episode % 1000 == 0):
-            # reset environments configuration
-            # Cloud.reset()
-            # Fog.reset()
-            # SmartGateway.reset()
-            
             # generate users. 
             # user object need for several cases such as:
             # 1. keeping track of user priorities;
@@ -63,7 +61,7 @@ def train():
                 raise Exception(f"The length of services should be match!")
 
             # calculate efficient times for success rate measurement
-            # efficient_times = get_efficient_times_to_allocate_services(users, services)
+            efficient_times = get_efficient_times_to_allocate_services(users, services)
 
             # debug necessary information
             utils.debug_users(users, is_printable=True)
@@ -74,49 +72,55 @@ def train():
             # generate environment
             environment = Environment(users)
 
-        done = False
-        environment.reset()
-    
         total_times = 0
         episode_reward = 0
-        while not done:
-            # observe the current state s
-            current_state = environment.get_state_space()
-            
-            # select an action a
-            action, chosen = agent.get_action(current_state)
+        for step in range(STEPS):
+            done = False
+            environment.reset()
 
-            # execute the action a, move to the next state s′ and observe the reward r
-            reward, done, info = environment.step(action)
-            next_state = environment.get_state_space()
+            total_times = 0
+            episode_reward = 0
 
-            # store the transition (s, a, r, d, s′) in the buffer
-            agent.train_short_memory(current_state, action, reward, done, next_state)
+            while not done:
+                # observe the current state s
+                current_state = environment.get_state_space()
+                
+                # select an action a
+                action, chosen = agent.get_action(current_state)
 
-            agent.remember(current_state, action, reward, done, next_state)
+                # execute the action a, move to the next state s′ and observe the reward r
+                reward, done, info = environment.step(action)
+                next_state = environment.get_state_space()
 
-            episode_reward += reward
+                # store the transition (s, a, r, d, s′) in the buffer
+                agent.train_short_memory(current_state, action, reward, done, next_state)
 
-            if not done:
-                total_times += 1
+                agent.remember(current_state, action, reward, done, next_state)
 
-            #log, print
-            utils.debug(log_msg=
-                f"Users: {len(users)}, Services: {services_count}, Slices per Service: {slices_count} , \n" + \
-                f"Total times: {total_times}, Action has chosen by {chosen} \n" + \
-                f"Episode: {agent.n_iterations},  Current Reward = {reward}, Eplisode Reward = {episode_reward}, Done = {done}, \n" + \
-                f"Total Slices: {info[1]}, Total Assigned Slices: {info[2]}, \n" + \
-                f"Slices tracker:  {info[0]}, \n",
-                #"\n\n",
-                is_printable=True)
+                episode_reward += reward
 
-            #log, print
-            utils.debug(log_msg=
-                f"Current state:  {str(current_state)}, \n" + \
-                f"Action:         {action}, \n" + \
-                f"Next state:     {str(next_state)}" +\
-                "\n\n",
-                is_printable=False)
+                slices_tracker = info[0]
+
+                if not done:
+                    total_times += 1
+
+                #log, print
+                utils.debug(log_msg=
+                    f"Users: {len(users)}, Services: {services_count}, Slices per Service: {slices_count} , \n" + \
+                    f"Total times: {total_times}, Action has chosen by {chosen} \n" + \
+                    f"Episode: {agent.n_iterations}, Step: {step}, Current Reward = {reward}, Eplisode Reward = {episode_reward}, Done = {done}, \n" + \
+                    f"Total Slices: {info[1]}, Total Assigned Slices: {info[2]}, \n" + \
+                    f"Slices tracker:  {slices_tracker}, \n",
+                    #"\n\n",
+                    is_printable=True)
+
+                #log, print
+                utils.debug(log_msg=
+                    f"Current state:  {str(current_state)}, \n" + \
+                    f"Action:         {action}, \n" + \
+                    f"Next state:     {str(next_state)}" +\
+                    "\n\n",
+                    is_printable=False)
 
         # store the transition (s, a, r, d, s′) in the long memory
         agent.train_long_memory()
@@ -132,7 +136,7 @@ def train():
         utils.debug_losses(episode_losses)
 
         # store success
-        total_episode_success +=- 0 if episode_reward < 0 else 1/total_times*100
+        total_episode_success +=- 0 if episode_reward < 0 else efficient_times/total_times*100
         episode_success.append(total_episode_success/agent.n_iterations)
         utils.debug_success_rates(episode_success)
 
@@ -151,3 +155,42 @@ def train():
 
     # save model
     agent.model.save()
+
+    # get fog and cloud percentages
+    fog_count = 0
+    cloud_count = 0
+    for slice_info in slices_tracker.values():
+        if slice_info.assigned_env == 1:
+            fog_count += 1
+        elif slice_info.assigned_env == 2:
+            cloud_count += 1
+    fog_percentage = fog_count/len(slices_tracker) * 100
+    cloud_percentage = cloud_count/len(slices_tracker) * 100
+    return fog_percentage, cloud_percentage
+
+def train_main():
+    i = 0
+    services_list = []
+    fog_percentages = []
+    cloud_percentages = []
+    fog_percentage = 0
+    cloud_percentage = 0
+    for _, value in TRAINING_SERVICE_SLICE_PAIRS.items():
+        service_count = value[0]
+        slice_count = value[1]
+        Params.set_params(
+            service_count = service_count,
+            slice_count = slice_count
+        )
+        i += 1
+        print(f"{i}) Training is starting for Services = {service_count} and Slices = {slice_count}")
+        fog_percentage, cloud_percentage = train()
+        services_list.append(service_count)
+        fog_percentages.append(fog_percentage) 
+        cloud_percentages.append(cloud_percentage) 
+        time.sleep(5)
+
+    ### save fog percentage
+    utils.f_save_plot_bar(services_list, fog_percentages, "fog node", utils.get_fog_percentage_plot_file())
+    ### save fog percentage
+    utils.f_save_plot_bar(services_list, cloud_percentages, "cloud", utils.get_cloud_percentage_plot_file())

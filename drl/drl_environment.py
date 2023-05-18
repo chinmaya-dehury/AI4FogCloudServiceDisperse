@@ -1,11 +1,12 @@
 import numpy as np
 from c_env_cloud import Cloud
 from c_env_fog import Fog
+from c_env_gateway import SmartGateway
 from c_slice_info import SliceInfo
 from c_system_modelling import get_service_priority
 from h_utils import debug
 import h_utils_state_space as ssutils
-from h_configs import Params, ENVIRONMENT_NAMES
+from h_configs import Params, ENVIRONMENT_NAMES, W1, W2, W3, W4, W5
 
 class Environment:
 	def __init__(self, users):
@@ -22,6 +23,10 @@ class Environment:
 		self.state_space = self._get_initial_state_space()
 		self.slices_tracker = {}
 		self.total_assigned_slices = 0
+		# reset environments configuration
+		Cloud.reset()
+		Fog.reset()
+		SmartGateway.reset()
 
 	def step(self, action):
 		reward = 0
@@ -168,11 +173,11 @@ class Environment:
 		mem_demand_ratio = round(slice_mem_demand/available_mem, 3)
 		# user_latency 			-> latency between user and smartgateway
 		# environment_latency	-> latency between smartgateway and environment (fog or cloud)
-		latency_ratio = round(user.get_user_latency()/environment_latency, 3)
+		communication_latency = round(user.get_user_latency()/environment_latency, 3)
+		computation_latency = slice_size_ratio + cpu_demand_ratio + mem_demand_ratio
 
-		reward = user_priority + \
-			service_priority + service_sensitivity + \
-			slice_size_ratio + cpu_demand_ratio + mem_demand_ratio + latency_ratio
+		reward = W1 * user_priority + W2 * service_priority + W3 * service_sensitivity + \
+			W4 * communication_latency + W5 * computation_latency
 		
 		reward = round(reward)
 
