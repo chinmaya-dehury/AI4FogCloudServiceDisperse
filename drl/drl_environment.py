@@ -1,4 +1,4 @@
-import numpy as np
+from multiprocessing import Pool
 from c_env_cloud import Cloud
 from c_env_fog import Fog
 from c_env_gateway import SmartGateway
@@ -6,27 +6,32 @@ from c_slice_info import SliceInfo
 from c_system_modelling import get_service_priority
 from h_utils import debug
 import h_utils_state_space as ssutils
-from h_configs import Params, ENVIRONMENT_NAMES, W1, W2, W3, W4, W5
+from h_configs import DynamicParams, W1, W2, W3, W4, W5
 
 class Environment:
-	def __init__(self, users):
+	def __init__(self, users, w1=None, w2=None, w3=None, w4=None, w5=None):
 		self.users = users
 		self.services = [service for user in users for service in user.services]
-		self.slices_count = Params.get_params()['slice_count']
+		self.slices_count = DynamicParams.get_params()['slice_count']
 		self.services_count = len(self.services)
 		self.total_slices = self.services_count * self.slices_count
 		self.state_space_len = ssutils.get_state_space_len(self.services_count, self.slices_count)
 		self.action_space_len = self.state_space_len
+		self.min_reward = 0
+		self.max_reward = 0
+		self.w1 = W1 if w1 is None else w1 
+		self.w2 = W2 if w2 is None else w2 
+		self.w3 = W3 if w3 is None else w3
+		self.w4 = W4 if w4 is None else w4
+		self.w5 = W5 if w5 is None else w5
 
 	def reset(self):
+		self.action = None
 		self.state = self._get_initial_state()
 		self.state_space = self._get_initial_state_space()
 		self.slices_tracker = {}
+		self.miss_deadline = 0
 		self.total_assigned_slices = 0
-		# reset environments configuration
-		Cloud.reset()
-		Fog.reset()
-		SmartGateway.reset()
 
 	def step(self, action):
 		reward = 0
@@ -34,30 +39,34 @@ class Environment:
 		selected_slices = []
 		next_state_space = self._get_initial_state_space()
 		next_state = self._get_next_state(action)
+		self.action = action
 
-		# if agent moves last state
-		if self._is_state_last_state(next_state):
-			done = True
-			reward = Params.get_params()['reward_for_last_state_when_all_slices_assigned']
-			# if there are still not assigned slices
-			if self.total_slices - self.total_assigned_slices > 0:
-				reward = Params.get_params()['penalty_for_last_state_when_unassigned_slices']
-		# otherwise, agent moves other state
-		else:
-			# get selected slices from state
+		# if agent moves other state
+		if not self._is_state_last_state(next_state):
+			next_state_space[action.index(1)] = 1
 			selected_fog_slices, selected_cloud_slices, _ = self._get_selected_slices_by_state(next_state)
 			selected_slices = selected_fog_slices + selected_cloud_slices
-			# if no slices selected in new state
-			if len(selected_slices) == 0:
-				reward = Params.get_params()['penalty_for_wasted_movements']
-			# otherwise, calculate reward by selected slices
-			else:
-				rewards = []
-				for selected_slice in selected_slices:
-					rewards.append(self._assign_slice(selected_slice))
-				reward = np.sum(rewards)
-		
-		next_state_space[action.index(1)] = 1
+
+			if len(selected_slices) > 0:
+				# parallel computation:
+				with Pool() as pool:
+					slice_infos = pool.map(self._assign_slice, selected_slices)
+				self._update_slices_tracker(slice_infos)
+				reward = self._get_reward_from_slices_tracker(slice_infos)
+				reward = round(reward, 3)
+
+				# serial computation:
+				# slice_infos = []
+				# for selected_slice in selected_slices:
+				# 	slice_infos.append(self._assign_slice(selected_slice))
+				# self._update_slices_tracker(slice_infos)
+				# reward = self._get_reward_from_slices_tracker(slice_infos)
+				# reward = round(reward, 3)
+
+		# if agent moves last state
+		if self._is_state_last_state(next_state) or self.total_assigned_slices == self.total_slices:
+			done = True
+			next_state_space = self._get_terminal_state_space()
 
 		# merge slices of services if all slices are assigned
 		if len(selected_slices) > 0:
@@ -71,7 +80,7 @@ class Environment:
 		self._set_state_space(next_state_space)
 
 		# return reward, done, infos
-		return reward, done, [self.slices_tracker, self.total_slices, self.total_assigned_slices]
+		return reward, done, [self.slices_tracker, self.total_slices, self.total_assigned_slices, self.miss_deadline]
 
 	# get state space
 	def get_state_space(self):
@@ -132,17 +141,16 @@ class Environment:
 
 	# assigning slice to the environment by using action info
 	def _assign_slice(self, selected_slice: SliceInfo):
-		reward = 0
 		service = selected_slice.service
 		user = service.user
 		slice_index = selected_slice.slice_index
 		assigned_env = selected_slice.assigned_env
-		service.do_action_with_metrics(slice_index, assigned_env)
-		reward = self._calculate_slice_reward(user, service, slice_index, assigned_env)
-		return reward
+		slice_execution_time = service.do_action_with_metrics(slice_index, assigned_env)
+		slice_info = self._calculate_slice_reward(user, service, slice_index, assigned_env, slice_execution_time)
+		return slice_info
 
 	# calculate reward function
-	def _calculate_slice_reward(self, user, service, slice_index, assigned_env):
+	def _calculate_slice_reward(self, user, service, slice_index, assigned_env, slice_execution_time):
 		reward = 0
 
 		user_priority = user.get_user_priority()
@@ -155,6 +163,7 @@ class Environment:
 		input_size = service.get_input_size()
 		slice_cpu_demand = service.get_cpu_demand_per_slice(slice_index)
 		slice_mem_demand = service.get_mem_demand_per_slice(slice_index)
+		slice_deadline = service.get_deadline_per_slice(slice_index)
 		available_cpu = 0
 		available_mem = 0
 		environment_latency = 0
@@ -176,34 +185,47 @@ class Environment:
 		communication_latency = round(user.get_user_latency()/environment_latency, 3)
 		computation_latency = slice_size_ratio + cpu_demand_ratio + mem_demand_ratio
 
-		reward = W1 * user_priority + W2 * service_priority + W3 * service_sensitivity + \
-			W4 * communication_latency + W5 * computation_latency
-		
-		reward = round(reward)
+		w_user_priority = round(self.w1 * user_priority, 3)
+		w_service_priority = round(self.w2 * service_priority, 3)
+		w_service_sensitivity = round(self.w3 * service_sensitivity, 3)
+		w_communication_latency = round(self.w4 * communication_latency, 3)
+		w_computation_latency =  round(self.w5 * computation_latency, 3)
+		w_latency = w_communication_latency + w_computation_latency
 
-		# update reward in slices tracker
-		slice_id = f"{service.id}_{slice_index}"
+		reward = w_user_priority + w_service_priority + w_service_sensitivity + w_latency
+
+		if slice_execution_time > slice_deadline:
+			reward = -reward
+
 		slice_info = SliceInfo(
 			service = service,
 			service_priority = service_priority,
 			slice_index = slice_index,
 			assigned_env = assigned_env,
+			cpu_demand=slice_cpu_demand,
+			mem_demand=slice_mem_demand,
+			total_cpu_demand=service.get_cpu_demand(),
+			total_mem_demand=service.get_mem_demand(),
 			slice_reward=reward
 		)
-		self.slices_tracker[slice_id] = slice_info
-		self.total_assigned_slices += 1
 
-		debug(
-			f"\tReward calculation for {service} slice{slice_index} assigned to {ENVIRONMENT_NAMES[assigned_env]}:\n"
-			f"\t\tReward = {reward}\n" + \
-			f"\t\tuser_priority = {user_priority}, service_priority = {service_priority}, service_sensitivity = {service_sensitivity}\n" + \
-			f"\t\tslice_size = {slice_size}, input_size = {input_size}, slice_size_ratio = {slice_size_ratio}\n"
-			f"\t\tslice_cpu_demand = {slice_cpu_demand}, available_cpu = {available_cpu}, cpu_demand_ratio = {cpu_demand_ratio}\n"
-			f"\t\tslice_mem_demand = {slice_mem_demand}, available_mem = {available_mem}, mem_demand_ratio = {mem_demand_ratio}\n\n",
-			is_printable=False
-		)
+		return slice_info
 
+	# get reward from slices tracker
+	def _get_reward_from_slices_tracker(self, slice_infos):
+		reward = 0
+		for slice_info in slice_infos:
+			reward += slice_info.slice_reward
 		return reward
+
+	# update reward in slices tracker
+	def _update_slices_tracker(self, slice_infos):
+		for slice_info in slice_infos:
+			self.total_assigned_slices += 1
+			if slice_info.slice_reward < 0:
+				self.miss_deadline += 1
+			slice_info_id = f"{slice_info.service.id}_{slice_info.slice_index}"
+			self.slices_tracker[slice_info_id] = slice_info
 
 	# get environment by slice
 	def _get_environment_by_slice(self, slice):
@@ -230,7 +252,12 @@ class Environment:
 							service = service,
 							service_priority = service_priority,
 							slice_index = slice_index,
-							assigned_env = assigned_env
+							assigned_env = assigned_env,
+							cpu_demand=0,
+							mem_demand=0,
+							total_cpu_demand=0,
+							total_mem_demand=0,
+							slice_reward=0
 						)
 						selected_slices.append(slice_info)
 				i += 1
@@ -316,7 +343,7 @@ class Environment:
 		selected_fog_slices, skipped_fog_slices = self._filter_fog_slices_by_available_resources(fog_slices)
 		#print(f"selected_fog_slices = {len(selected_fog_slices)}")
 		#print(f"skipped_fog_slices = {len(skipped_fog_slices)}")
-		cloud_slices = self._forward_slices_to_cloud(cloud_slices, skipped_fog_slices)
+		# cloud_slices = self._forward_slices_to_cloud(cloud_slices, skipped_fog_slices)
 		selected_cloud_slices, skipped_cloud_slices = self._filter_cloud_slices_by_available_resources(cloud_slices)
 		#print(f"selected_cloud_slices = {len(selected_cloud_slices)}")
 		#print(f"skipped_cloud_slices = {len(skipped_cloud_slices)}")
@@ -325,11 +352,3 @@ class Environment:
 		#print(f"total_skipped_slices = {len(skipped_slices)}")
 		#print(f"total_selected_slices = {len(selected_slices)}")
 		return selected_fog_slices, selected_cloud_slices, skipped_slices
-
-	# this function adds selected slices (or assignable slices) to slices tracker
-	# def _add_selected_slices_to_tracker(self, selected_slices):
-	# 	for slice in selected_slices:
-	# 		slice_id = f"{slice.service.id}_{slice.slice_index}"
-	# 		if slice_id not in self.slices_tracker:
-	# 			self.slices_tracker[slice_id] = slice
-	# 			self.total_assigned_slices += 1

@@ -7,8 +7,10 @@
 __pycache__
 state_spaces
 models
+results
 
 # not ignore followings
-!drl/input/*
-!app2/app2_client/input/input1/*.mp3
-!app3/app3_client/input/input1/*.mp3
+# !drl/input/app1_video.mp4
+# !drl/input/app2_audio.mp3
+# !drl/input/app2_subtitle.txt
+# !drl/input/app3_audio.wav

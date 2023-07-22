@@ -3,7 +3,7 @@ from datetime import datetime
 import torch
 import torch.nn as nn
 import torch.optim as optim
-from h_configs import MODEL_FOLDER, MODEL_OUTPUT_PATH, Params
+from h_configs import MODEL_FOLDER, MODEL_OUTPUT_PATH, DynamicParams
 
 class DRLModel(nn.Module):
     def __init__(self, input_size, hidden_size, output_size):
@@ -22,8 +22,8 @@ class DRLModel(nn.Module):
     def save(self):
         if not os.path.exists(MODEL_FOLDER):
             os.mkdir(MODEL_FOLDER)
-        model_id = datetime.now().strftime("%d_%m_%Y_%H_%M")
-        model_name = MODEL_OUTPUT_PATH.format(MODEL_FOLDER, Params.get_params()['service_count'], Params.get_params()['slice_count'], model_id)
+        model_id = datetime.now().strftime("%Y_%m_%d_%H_%M")
+        model_name = MODEL_OUTPUT_PATH.format(MODEL_FOLDER, DynamicParams.get_params()['service_type'], (DynamicParams.get_params()['service_count']*DynamicParams.get_params()['slice_count']), model_id)
         torch.save(self.state_dict(), model_name)
 
 class DRLTrainer:

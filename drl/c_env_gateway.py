@@ -1,7 +1,6 @@
 import json
 import requests
-from h_configs import SMART_GATEWAY_IP, SMART_GATEWAY_PORT, SIMULATION, \
-    SMART_GATEWAY_LATITUDE, SMART_GATEWAY_LONGITUDE, SMART_GATEWAY_MAX_COMM_RANGE, SMART_GATEWAY_METRICS_ENDPOINT
+from h_configs import SMART_GATEWAY_IP, SMART_GATEWAY_PORT, SMART_GATEWAY_METRICS_ENDPOINT
 
 class SmartGateway:
     __metrics = None
@@ -21,15 +20,8 @@ class SmartGateway:
     @staticmethod
     def get_metrics():
         if SmartGateway.__metrics is None:
-            if SIMULATION:
-                 SmartGateway.__metrics = { 
-                    "latitude": SMART_GATEWAY_LATITUDE,
-                    "longtitude": SMART_GATEWAY_LONGITUDE,
-                    "max_communication_range": SMART_GATEWAY_MAX_COMM_RANGE
-                }
-            else:
-                response = requests.get(url = SMART_GATEWAY_METRICS_ENDPOINT)
-                SmartGateway.__metrics = json.loads(response.content)
+            response = requests.get(url = SMART_GATEWAY_METRICS_ENDPOINT)
+            SmartGateway.__metrics = json.loads(response.content)
         return SmartGateway.__metrics
 
     @staticmethod

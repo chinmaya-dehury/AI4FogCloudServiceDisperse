@@ -2,7 +2,6 @@ import math
 import random
 from c_env_gateway import SmartGateway
 import h_utils as utils
-from h_configs import SIMULATION, LATENCY_BETWEEN_USER_AND_SMARTGATEWAY
 
 class User:
     def __init__(self, id, latitude, longitude):
@@ -22,11 +21,8 @@ class User:
 
     def get_user_latency(self):
         if self.latency is None:
-            if SIMULATION:
-                self.latency = random.randint(LATENCY_BETWEEN_USER_AND_SMARTGATEWAY[0], LATENCY_BETWEEN_USER_AND_SMARTGATEWAY[1])
-            else:
-                latency = utils.get_latency(SmartGateway.get_ip(), SmartGateway.get_port())
-                self.latency = round(latency, 3)
+            latency = utils.get_latency(SmartGateway.get_ip(), SmartGateway.get_port())
+            self.latency = round(latency, 3)
         return self.latency
 
     def get_distance_priority(self):

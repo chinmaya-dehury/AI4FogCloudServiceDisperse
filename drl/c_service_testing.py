@@ -1,31 +1,27 @@
 from c_user_factory import generate_users
-from c_service_factory import generate_service
-from h_configs import Params
+from c_service_factory import generate_services_for_users
+from h_configs import DynamicParams, TRAINING_SERVICE_SLICE_PAIRS
 
 def test_services():
-    Params.set_params(
-        service_count = 3,
-        slice_count = 3
-    )
+    for _, value in TRAINING_SERVICE_SLICE_PAIRS.items():
+        service_type = value[0]
+        service_count = value[1]
+        slice_count = value[2]
+        DynamicParams.set_params(
+            service_type = service_type,
+            service_count = service_count,
+            slice_count = slice_count
+        )
+        users = generate_users(n=1)
+        generate_services_for_users(users)
+        
+        for user in users:
+            for service in user.services:
+                total_size = service.get_input_size()
+                sum_of_slices = sum(service.slices_size_map.values())
+                if (sum_of_slices > total_size):
+                    print(f"ERROR: Service{service.id} -> {service.slices_size_map}")
+                else:
+                    print(f"Service{service.id} -> {service.slices_size_map}")
 
-    users = generate_users(n=1)
-    user1 = users[0]
-
-    # generate services for each users
-    generate_service(user = user1, service_type=1, service_id=1)
-    generate_service(user = user1, service_type=2, service_id=2)
-    generate_service(user = user1, service_type=3, service_id=3)
-
-    for service in user1.services:
-        _assign_slice(service)
-
-def _assign_slice(service):
-    for slice_index in range(3):
-        assigned_to_fog = slice_index % 2
-        output   = service.do_action_with_metrics(slice_index, assigned_to_fog)
-
-        # logging
-        env = "fog" if assigned_to_fog == 1 else "cloud"
-        print(f"Service{service.id} slice{slice_index} assigned to {env}. Output = {output}")
-    
-    service.merge_slices()
+test_services()

@@ -1,7 +1,7 @@
 from c_env_cloud import Cloud
 from c_env_fog import Fog
 from h_utils import debug
-from h_configs import Params
+from h_configs import DynamicParams
 
 ########################################################################################################## USER MODELLING IMPL
 
@@ -156,7 +156,7 @@ def h_split_services_to_slices(services):
     slices = []
     for service in services:
         priority = 0
-        for slice_index in range(Params.get_params()['slice_count']):
+        for slice_index in range(DynamicParams.get_params()['slice_count']):
             slice = [service, slice_index, priority]
             slices.append(slice)
     return slices
