@@ -4,7 +4,7 @@ In a smart home environment, we are using cloud computing for powerful processin
 This thesis topic mainly focuses on efficient utilisation of cloud and fog resources. An AI model (most probably the DRL) needs to be developed to decide when to use fog computing and when to use cloud computing.
 
 ## DRL-based Service Placement
-- [x] [Source Code](/drl)
+- [x] [Source Code](/drl_algorithm)
 ![alt text](/docs/figs/fig_drlarch.png)
 
 ## Experiment Applications
