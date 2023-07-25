@@ -10,15 +10,15 @@ This thesis topic mainly focuses on efficient utilisation of cloud and fog resou
 ## Experiment Applications
 
 ### 1) Application 1 - Deep learning based object classification using YOLOv3
-- [x] [Client Side](/app1/app1_client/)
-- [x] [Server Side](/app1/app1_server/)
+- [x] [Client Side](/app1_yolo/app1_client/)
+- [x] [Server Side](/app1_yolo/app1_server/)
 - Testing scripts
 	- curl -X POST -F image=@traffic.jpg 'http://$IP:$PORT/api/detect' --output traffic_yolo.png
 ![alt text](/docs/figs/fig4.png)
 
 ### 2) Application 2 - Text-audio synchronisation or forced alignment (Aeneas)
-- [x] [Client Side](/app2/app2_client/)
-- [x] [Server Side](/app2/app2_server/)
+- [x] [Client Side](/app2_aeneas/app2_client/)
+- [x] [Server Side](/app2_aeneas/app2_server/)
 - Testing scripts
 	- python3 -m aeneas.diagnostics
 	- python3 setup.py build_ext --inplace
@@ -27,8 +27,8 @@ This thesis topic mainly focuses on efficient utilisation of cloud and fog resou
 ![alt text](/docs/figs/fig5.png)
 
 ### 3) Application 3 - Speech-to-text conversion (PocketSphinx)
-- [x] [Client Side](/app3/app3_client/)
-- [x] [Server Side](/app3/app3_server/)
+- [x] [Client Side](/app3_pocketsphinx/app3_client/)
+- [x] [Server Side](/app3_pocketsphinx/app3_server/)
 - Testing scripts
 	- curl -X POST -F audio=@p001.mp3 'http://$IP:$PORT/api/sync' --output output.txt
 ![alt text](/docs/figs/fig6.png)
