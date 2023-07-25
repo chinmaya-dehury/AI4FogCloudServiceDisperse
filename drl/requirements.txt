@@ -1,0 +1,14 @@
+opencv-contrib-python
+numpy
+flask
+requests
+Pillow
+torch 
+torchvision
+matplotlib 
+ipython
+moviepy
+psutil
+tcp_latency
+pydub
+Pandas

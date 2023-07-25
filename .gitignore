@@ -3,7 +3,6 @@
 *.mp4
 *.wav
 *.weights
-*.txt
 __pycache__
 state_spaces
 models
