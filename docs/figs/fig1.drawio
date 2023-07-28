@@ -1,0 +1,216 @@
+<mxfile host="app.diagrams.net" modified="2023-04-03T22:03:31.076Z" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36" etag="v4RhCnF_lwY0uIvnfhQv" version="21.1.1" type="device">
+  <diagram id="QoV-a72TpVFC7doKJGpD" name="Page-1">
+    <mxGraphModel dx="7710" dy="2920" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="SIyfp_T04aYrkQ67f-0r-63" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=none;strokeWidth=3;dashed=1;" vertex="1" parent="1">
+          <mxGeometry y="2220" width="900" height="350" as="geometry" />
+        </mxCell>
+        <mxCell id="SIyfp_T04aYrkQ67f-0r-62" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=none;strokeWidth=3;dashed=1;" vertex="1" parent="1">
+          <mxGeometry y="1860" width="900" height="350" as="geometry" />
+        </mxCell>
+        <mxCell id="SIyfp_T04aYrkQ67f-0r-57" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=none;strokeWidth=3;dashed=1;" vertex="1" parent="1">
+          <mxGeometry y="1500" width="900" height="350" as="geometry" />
+        </mxCell>
+        <mxCell id="SIyfp_T04aYrkQ67f-0r-11" value="" style="ellipse;shape=cloud;whiteSpace=wrap;html=1;fillColor=none;fontColor=#ffffff;strokeColor=#006EAF;strokeWidth=3;" vertex="1" parent="1">
+          <mxGeometry x="280" y="1500" width="346" height="300" as="geometry" />
+        </mxCell>
+        <mxCell id="JswBJyAtskG5mYRLD8Gp-26" value="" style="shape=mxgraph.signs.transportation.car_3;html=1;pointerEvents=1;fillColor=#0080F0;strokeColor=none;verticalLabelPosition=bottom;verticalAlign=top;align=center;fontSize=30;" parent="1" vertex="1">
+          <mxGeometry x="40.000000000000014" y="2360.91" width="69.5" height="38" as="geometry" />
+        </mxCell>
+        <mxCell id="JswBJyAtskG5mYRLD8Gp-30" value="" style="fontColor=#0066CC;verticalAlign=top;verticalLabelPosition=bottom;labelPosition=center;align=center;html=1;outlineConnect=0;fillColor=#0080F0;strokeColor=#6881B3;gradientColor=none;gradientDirection=north;strokeWidth=2;shape=mxgraph.networks.security_camera;fontSize=30;rotation=-15;" parent="1" vertex="1">
+          <mxGeometry x="186.36" y="2490.9100000000003" width="65" height="34.5" as="geometry" />
+        </mxCell>
+        <mxCell id="JswBJyAtskG5mYRLD8Gp-31" value="" style="image;html=1;image=img/lib/clip_art/computers/Laptop_128x128.png;fontSize=30;fillColor=#B5739D;" parent="1" vertex="1">
+          <mxGeometry x="181.36" y="2350.5" width="70" height="59" as="geometry" />
+        </mxCell>
+        <mxCell id="JswBJyAtskG5mYRLD8Gp-32" value="" style="shape=image;html=1;verticalAlign=top;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;imageAspect=0;aspect=fixed;image=https://cdn1.iconfinder.com/data/icons/unicons-line-vol-1/24/ambulance-128.png;fontSize=30;fillColor=#B5739D;" parent="1" vertex="1">
+          <mxGeometry x="45.25" y="2480.91" width="64.25" height="64.25" as="geometry" />
+        </mxCell>
+        <mxCell id="2Wsek03Q1OSYkEhSLVgz-1" value="" style="points=[];aspect=fixed;html=1;align=center;shadow=0;dashed=0;image;image=img/lib/allied_telesis/security/Router_VPN.svg;" parent="1" vertex="1">
+          <mxGeometry x="403.96000000000004" y="2357.6400000000003" width="87.29" height="61.95" as="geometry" />
+        </mxCell>
+        <mxCell id="SIyfp_T04aYrkQ67f-0r-5" value="" style="image;aspect=fixed;perimeter=ellipsePerimeter;html=1;align=center;shadow=0;dashed=0;spacingTop=3;image=img/lib/active_directory/database_server.svg;" vertex="1" parent="1">
+          <mxGeometry x="426" y="1540" width="82" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="SIyfp_T04aYrkQ67f-0r-6" value="" style="image;aspect=fixed;perimeter=ellipsePerimeter;html=1;align=center;shadow=0;dashed=0;spacingTop=3;image=img/lib/active_directory/web_server.svg;" vertex="1" parent="1">
+          <mxGeometry x="521" y="1610" width="80" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="SIyfp_T04aYrkQ67f-0r-7" value="" style="image;aspect=fixed;perimeter=ellipsePerimeter;html=1;align=center;shadow=0;dashed=0;spacingTop=3;image=img/lib/active_directory/generic_server.svg;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="344" y="1610" width="56" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="SIyfp_T04aYrkQ67f-0r-21" value="" style="image;aspect=fixed;perimeter=ellipsePerimeter;html=1;align=center;shadow=0;dashed=0;spacingTop=3;image=img/lib/active_directory/sql_server.svg;" vertex="1" parent="1">
+          <mxGeometry x="444" y="1670" width="77" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="SIyfp_T04aYrkQ67f-0r-40" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" target="SIyfp_T04aYrkQ67f-0r-39">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="-1067" y="698.0799999999999" as="sourcePoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="SIyfp_T04aYrkQ67f-0r-68" value="" style="html=1;verticalLabelPosition=bottom;align=center;labelBackgroundColor=#ffffff;verticalAlign=top;strokeWidth=3;strokeColor=#0080F0;shadow=0;dashed=0;shape=mxgraph.ios7.icons.cloud;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="620" y="1930" width="270" height="210" as="geometry" />
+        </mxCell>
+        <mxCell id="SIyfp_T04aYrkQ67f-0r-69" value="" style="fontColor=#0066CC;verticalAlign=top;verticalLabelPosition=bottom;labelPosition=center;align=center;html=1;outlineConnect=0;fillColor=#CCCCCC;strokeColor=#6881B3;gradientColor=none;gradientDirection=north;strokeWidth=2;shape=mxgraph.networks.radio_tower;" vertex="1" parent="1">
+          <mxGeometry x="715.1099999999999" y="2008.8400000000001" width="45" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="SIyfp_T04aYrkQ67f-0r-70" value="" style="fontColor=#0066CC;verticalAlign=top;verticalLabelPosition=bottom;labelPosition=center;align=center;html=1;outlineConnect=0;fillColor=#CCCCCC;strokeColor=#6881B3;gradientColor=none;gradientDirection=north;strokeWidth=2;shape=mxgraph.networks.radio_tower;" vertex="1" parent="1">
+          <mxGeometry x="663.1099999999999" y="2038.8400000000001" width="45" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="SIyfp_T04aYrkQ67f-0r-71" value="" style="sketch=0;aspect=fixed;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=#006EAF;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;fillColor=#1ba1e2;shape=mxgraph.azure.server_rack;fontColor=#ffffff;" vertex="1" parent="1">
+          <mxGeometry x="767.9999999999999" y="2038.8400000000001" width="80" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="SIyfp_T04aYrkQ67f-0r-72" value="" style="fontColor=#0066CC;verticalAlign=top;verticalLabelPosition=bottom;labelPosition=center;align=center;html=1;outlineConnect=0;fillColor=#CCCCCC;strokeColor=#6881B3;gradientColor=none;gradientDirection=north;strokeWidth=2;shape=mxgraph.networks.radio_tower;" vertex="1" parent="1">
+          <mxGeometry x="715.1099999999999" y="2008.8400000000001" width="45" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="SIyfp_T04aYrkQ67f-0r-73" value="" style="fontColor=#0066CC;verticalAlign=top;verticalLabelPosition=bottom;labelPosition=center;align=center;html=1;outlineConnect=0;fillColor=#CCCCCC;strokeColor=#6881B3;gradientColor=none;gradientDirection=north;strokeWidth=2;shape=mxgraph.networks.radio_tower;" vertex="1" parent="1">
+          <mxGeometry x="663.1099999999999" y="2038.8400000000001" width="45" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="SIyfp_T04aYrkQ67f-0r-74" value="" style="sketch=0;aspect=fixed;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=#006EAF;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;fillColor=#1ba1e2;shape=mxgraph.azure.server_rack;fontColor=#ffffff;" vertex="1" parent="1">
+          <mxGeometry x="767.9999999999999" y="2038.8400000000001" width="80" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="SIyfp_T04aYrkQ67f-0r-75" value="" style="html=1;verticalLabelPosition=bottom;align=center;labelBackgroundColor=#ffffff;verticalAlign=top;strokeWidth=3;strokeColor=#0080F0;shadow=0;dashed=0;shape=mxgraph.ios7.icons.cloud;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="620" y="1930" width="270" height="210" as="geometry" />
+        </mxCell>
+        <mxCell id="SIyfp_T04aYrkQ67f-0r-76" value="" style="fontColor=#0066CC;verticalAlign=top;verticalLabelPosition=bottom;labelPosition=center;align=center;html=1;outlineConnect=0;fillColor=#CCCCCC;strokeColor=#6881B3;gradientColor=none;gradientDirection=north;strokeWidth=2;shape=mxgraph.networks.radio_tower;" vertex="1" parent="1">
+          <mxGeometry x="135.1099999999999" y="2008.8400000000001" width="45" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="SIyfp_T04aYrkQ67f-0r-77" value="" style="fontColor=#0066CC;verticalAlign=top;verticalLabelPosition=bottom;labelPosition=center;align=center;html=1;outlineConnect=0;fillColor=#CCCCCC;strokeColor=#6881B3;gradientColor=none;gradientDirection=north;strokeWidth=2;shape=mxgraph.networks.radio_tower;" vertex="1" parent="1">
+          <mxGeometry x="83.1099999999999" y="2038.8400000000001" width="45" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="SIyfp_T04aYrkQ67f-0r-78" value="" style="sketch=0;aspect=fixed;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=#006EAF;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;fillColor=#1ba1e2;shape=mxgraph.azure.server_rack;fontColor=#ffffff;" vertex="1" parent="1">
+          <mxGeometry x="187.9999999999999" y="2038.8400000000001" width="80" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="SIyfp_T04aYrkQ67f-0r-79" value="" style="html=1;verticalLabelPosition=bottom;align=center;labelBackgroundColor=#ffffff;verticalAlign=top;strokeWidth=3;strokeColor=#0080F0;shadow=0;dashed=0;shape=mxgraph.ios7.icons.cloud;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="40" y="1930" width="270" height="210" as="geometry" />
+        </mxCell>
+        <mxCell id="SIyfp_T04aYrkQ67f-0r-80" value="" style="fontColor=#0066CC;verticalAlign=top;verticalLabelPosition=bottom;labelPosition=center;align=center;html=1;outlineConnect=0;fillColor=#CCCCCC;strokeColor=#6881B3;gradientColor=none;gradientDirection=north;strokeWidth=2;shape=mxgraph.networks.radio_tower;" vertex="1" parent="1">
+          <mxGeometry x="425.1099999999999" y="2008.8400000000001" width="45" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="SIyfp_T04aYrkQ67f-0r-81" value="" style="fontColor=#0066CC;verticalAlign=top;verticalLabelPosition=bottom;labelPosition=center;align=center;html=1;outlineConnect=0;fillColor=#CCCCCC;strokeColor=#6881B3;gradientColor=none;gradientDirection=north;strokeWidth=2;shape=mxgraph.networks.radio_tower;" vertex="1" parent="1">
+          <mxGeometry x="373.1099999999999" y="2038.8400000000001" width="45" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="SIyfp_T04aYrkQ67f-0r-82" value="" style="sketch=0;aspect=fixed;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=#006EAF;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;fillColor=#1ba1e2;shape=mxgraph.azure.server_rack;fontColor=#ffffff;" vertex="1" parent="1">
+          <mxGeometry x="477.9999999999999" y="2038.8400000000001" width="80" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="SIyfp_T04aYrkQ67f-0r-83" value="" style="html=1;verticalLabelPosition=bottom;align=center;labelBackgroundColor=#ffffff;verticalAlign=top;strokeWidth=3;strokeColor=#0080F0;shadow=0;dashed=0;shape=mxgraph.ios7.icons.cloud;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="330" y="1930" width="270" height="210" as="geometry" />
+        </mxCell>
+        <mxCell id="SIyfp_T04aYrkQ67f-0r-90" value="" style="shape=flexArrow;endArrow=classic;startArrow=classic;html=1;rounded=0;strokeWidth=3;fillColor=#cdeb8b;strokeColor=#36393d;" edge="1" parent="1">
+          <mxGeometry width="100" height="100" relative="1" as="geometry">
+            <mxPoint x="320.22" y="2290" as="sourcePoint" />
+            <mxPoint x="320" y="2160" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="SIyfp_T04aYrkQ67f-0r-93" value="" style="shape=flexArrow;endArrow=classic;startArrow=classic;html=1;rounded=0;strokeWidth=3;fillColor=#cdeb8b;strokeColor=#36393d;" edge="1" parent="1">
+          <mxGeometry width="100" height="100" relative="1" as="geometry">
+            <mxPoint x="610.22" y="2290" as="sourcePoint" />
+            <mxPoint x="610" y="2160" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="SIyfp_T04aYrkQ67f-0r-94" value="" style="shape=flexArrow;endArrow=classic;startArrow=classic;html=1;rounded=0;strokeWidth=3;fillColor=#cdeb8b;strokeColor=#36393d;" edge="1" parent="1">
+          <mxGeometry width="100" height="100" relative="1" as="geometry">
+            <mxPoint x="60.22000000000003" y="2290" as="sourcePoint" />
+            <mxPoint x="60" y="2160" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="SIyfp_T04aYrkQ67f-0r-95" value="" style="shape=flexArrow;endArrow=classic;startArrow=classic;html=1;rounded=0;strokeWidth=3;fillColor=#cdeb8b;strokeColor=#36393d;" edge="1" parent="1">
+          <mxGeometry width="100" height="100" relative="1" as="geometry">
+            <mxPoint x="846.5500000000001" y="2290" as="sourcePoint" />
+            <mxPoint x="846.33" y="2160" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="SIyfp_T04aYrkQ67f-0r-96" value="" style="shape=flexArrow;endArrow=classic;startArrow=classic;html=1;rounded=0;strokeWidth=3;fillColor=#cdeb8b;strokeColor=#36393d;" edge="1" parent="1">
+          <mxGeometry width="100" height="100" relative="1" as="geometry">
+            <mxPoint x="160.22000000000003" y="1925" as="sourcePoint" />
+            <mxPoint x="160" y="1795" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="SIyfp_T04aYrkQ67f-0r-97" value="" style="shape=flexArrow;endArrow=classic;startArrow=classic;html=1;rounded=0;strokeWidth=3;fillColor=#cdeb8b;strokeColor=#36393d;" edge="1" parent="1">
+          <mxGeometry width="100" height="100" relative="1" as="geometry">
+            <mxPoint x="713.6600000000001" y="1920" as="sourcePoint" />
+            <mxPoint x="713.44" y="1790" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="SIyfp_T04aYrkQ67f-0r-98" value="" style="shape=flexArrow;endArrow=classic;startArrow=classic;html=1;rounded=0;strokeWidth=3;fillColor=#cdeb8b;strokeColor=#36393d;" edge="1" parent="1">
+          <mxGeometry width="100" height="100" relative="1" as="geometry">
+            <mxPoint x="460.2200000000001" y="1925" as="sourcePoint" />
+            <mxPoint x="460.00000000000006" y="1795" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="SIyfp_T04aYrkQ67f-0r-109" value="&lt;font color=&quot;#333333&quot; style=&quot;font-size: 30px;&quot;&gt;Edge Layer&lt;br&gt;(End Users/Gateways)&lt;br&gt;&lt;/font&gt;" style="text;html=1;strokeColor=#6c8ebf;fillColor=#dae8fc;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=1;fontStyle=1;shadow=1;glass=0;rotation=0;fontSize=30;" vertex="1" parent="1">
+          <mxGeometry x="-400" y="2320" width="360" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="SIyfp_T04aYrkQ67f-0r-110" value="&lt;font color=&quot;#333333&quot; style=&quot;font-size: 30px;&quot;&gt;Fog Layer&lt;br&gt;(Fog Nodes)&lt;br&gt;&lt;/font&gt;" style="text;html=1;strokeColor=#6c8ebf;fillColor=#dae8fc;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=1;fontStyle=1;shadow=1;glass=0;rotation=0;fontSize=30;" vertex="1" parent="1">
+          <mxGeometry x="-400" y="1960" width="360" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="SIyfp_T04aYrkQ67f-0r-112" value="&lt;font color=&quot;#333333&quot; style=&quot;font-size: 30px;&quot;&gt;Cloud Layer&lt;br&gt;(Data Centers)&lt;br&gt;&lt;/font&gt;" style="text;html=1;strokeColor=#6c8ebf;fillColor=#dae8fc;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=1;fontStyle=1;shadow=1;glass=0;rotation=0;fontSize=30;" vertex="1" parent="1">
+          <mxGeometry x="-400" y="1600" width="360" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="SIyfp_T04aYrkQ67f-0r-120" value="" style="shape=image;html=1;verticalAlign=top;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;imageAspect=0;aspect=fixed;image=https://cdn1.iconfinder.com/data/icons/ionicons-fill-vol-2/512/wifi-128.png" vertex="1" parent="1">
+          <mxGeometry x="61.09" y="2320" width="40.91" height="40.91" as="geometry" />
+        </mxCell>
+        <mxCell id="SIyfp_T04aYrkQ67f-0r-122" value="" style="shape=image;html=1;verticalAlign=top;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;imageAspect=0;aspect=fixed;image=https://cdn1.iconfinder.com/data/icons/ionicons-fill-vol-2/512/wifi-128.png" vertex="1" parent="1">
+          <mxGeometry x="59.55" y="2450" width="40.91" height="40.91" as="geometry" />
+        </mxCell>
+        <mxCell id="SIyfp_T04aYrkQ67f-0r-124" value="" style="shape=image;html=1;verticalAlign=top;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;imageAspect=0;aspect=fixed;image=https://cdn1.iconfinder.com/data/icons/ionicons-fill-vol-2/512/wifi-128.png" vertex="1" parent="1">
+          <mxGeometry x="210.45" y="2320" width="40.91" height="40.91" as="geometry" />
+        </mxCell>
+        <mxCell id="SIyfp_T04aYrkQ67f-0r-126" value="" style="shape=image;html=1;verticalAlign=top;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;imageAspect=0;aspect=fixed;image=https://cdn1.iconfinder.com/data/icons/ionicons-fill-vol-2/512/wifi-128.png" vertex="1" parent="1">
+          <mxGeometry x="210.45" y="2450" width="40.91" height="40.91" as="geometry" />
+        </mxCell>
+        <mxCell id="SIyfp_T04aYrkQ67f-0r-128" value="" style="shape=image;html=1;verticalAlign=top;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;imageAspect=0;aspect=fixed;image=https://cdn1.iconfinder.com/data/icons/ionicons-fill-vol-2/512/wifi-128.png" vertex="1" parent="1">
+          <mxGeometry x="332.2" y="2320" width="40.91" height="40.91" as="geometry" />
+        </mxCell>
+        <mxCell id="SIyfp_T04aYrkQ67f-0r-130" value="" style="shape=image;html=1;verticalAlign=top;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;imageAspect=0;aspect=fixed;image=https://cdn1.iconfinder.com/data/icons/ionicons-fill-vol-2/512/wifi-128.png" vertex="1" parent="1">
+          <mxGeometry x="332.2" y="2442.21" width="40.91" height="40.91" as="geometry" />
+        </mxCell>
+        <mxCell id="SIyfp_T04aYrkQ67f-0r-132" value="" style="shape=image;html=1;verticalAlign=top;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;imageAspect=0;aspect=fixed;image=https://cdn1.iconfinder.com/data/icons/ionicons-fill-vol-2/512/wifi-128.png" vertex="1" parent="1">
+          <mxGeometry x="534.53" y="2320" width="40.91" height="40.91" as="geometry" />
+        </mxCell>
+        <mxCell id="SIyfp_T04aYrkQ67f-0r-134" value="" style="shape=image;html=1;verticalAlign=top;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;imageAspect=0;aspect=fixed;image=https://cdn1.iconfinder.com/data/icons/ionicons-fill-vol-2/512/wifi-128.png" vertex="1" parent="1">
+          <mxGeometry x="475.19" y="2446.48" width="40.91" height="40.91" as="geometry" />
+        </mxCell>
+        <mxCell id="SIyfp_T04aYrkQ67f-0r-136" value="" style="shape=image;html=1;verticalAlign=top;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;imageAspect=0;aspect=fixed;image=https://cdn1.iconfinder.com/data/icons/ionicons-fill-vol-2/512/wifi-128.png" vertex="1" parent="1">
+          <mxGeometry x="651.4399999999999" y="2320" width="40.91" height="40.91" as="geometry" />
+        </mxCell>
+        <mxCell id="SIyfp_T04aYrkQ67f-0r-138" value="" style="shape=image;html=1;verticalAlign=top;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;imageAspect=0;aspect=fixed;image=https://cdn1.iconfinder.com/data/icons/ionicons-fill-vol-2/512/wifi-128.png" vertex="1" parent="1">
+          <mxGeometry x="651.4399999999999" y="2450" width="40.91" height="40.91" as="geometry" />
+        </mxCell>
+        <mxCell id="SIyfp_T04aYrkQ67f-0r-140" value="" style="shape=image;html=1;verticalAlign=top;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;imageAspect=0;aspect=fixed;image=https://cdn1.iconfinder.com/data/icons/ionicons-fill-vol-2/512/wifi-128.png" vertex="1" parent="1">
+          <mxGeometry x="787.54" y="2320" width="40.91" height="40.91" as="geometry" />
+        </mxCell>
+        <mxCell id="SIyfp_T04aYrkQ67f-0r-142" value="" style="shape=image;html=1;verticalAlign=top;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;imageAspect=0;aspect=fixed;image=https://cdn1.iconfinder.com/data/icons/ionicons-fill-vol-2/512/wifi-128.png" vertex="1" parent="1">
+          <mxGeometry x="787.54" y="2450" width="40.91" height="40.91" as="geometry" />
+        </mxCell>
+        <mxCell id="SIyfp_T04aYrkQ67f-0r-145" value="" style="html=1;verticalLabelPosition=bottom;align=center;labelBackgroundColor=#ffffff;verticalAlign=top;strokeWidth=2;strokeColor=#0080F0;shadow=0;dashed=0;shape=mxgraph.ios7.icons.home;" vertex="1" parent="1">
+          <mxGeometry x="305.5" y="2350" width="62.86" height="59.5" as="geometry" />
+        </mxCell>
+        <mxCell id="SIyfp_T04aYrkQ67f-0r-146" value="" style="shape=image;html=1;verticalAlign=top;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;imageAspect=0;aspect=fixed;image=https://cdn3.iconfinder.com/data/icons/tweetscotty/128/twitterbot.png" vertex="1" parent="1">
+          <mxGeometry x="321.63" y="2483.12" width="62.04" height="62.04" as="geometry" />
+        </mxCell>
+        <mxCell id="SIyfp_T04aYrkQ67f-0r-148" value="" style="shape=image;html=1;verticalAlign=top;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;imageAspect=0;aspect=fixed;image=https://cdn1.iconfinder.com/data/icons/DarkGlass_Reworked/128x128/apps/daemons.png" vertex="1" parent="1">
+          <mxGeometry x="460.00000000000006" y="2485.59" width="71.3" height="71.3" as="geometry" />
+        </mxCell>
+        <mxCell id="SIyfp_T04aYrkQ67f-0r-149" value="" style="shape=image;html=1;verticalAlign=top;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;imageAspect=0;aspect=fixed;image=https://cdn2.iconfinder.com/data/icons/business-and-education-1/512/133_Solar_Panel_Energy_technology_smart_city_technology_smart-128.png" vertex="1" parent="1">
+          <mxGeometry x="521" y="2350.5" width="69.09" height="69.09" as="geometry" />
+        </mxCell>
+        <mxCell id="SIyfp_T04aYrkQ67f-0r-151" value="" style="shape=mxgraph.signs.transportation.train_2;html=1;pointerEvents=1;fillColor=#0080F0;strokeColor=none;verticalLabelPosition=bottom;verticalAlign=top;align=center;" vertex="1" parent="1">
+          <mxGeometry x="651.44" y="2355.5" width="45.11" height="74.5" as="geometry" />
+        </mxCell>
+        <mxCell id="SIyfp_T04aYrkQ67f-0r-153" value="" style="shape=image;html=1;verticalAlign=top;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;imageAspect=0;aspect=fixed;image=https://cdn4.iconfinder.com/data/icons/transportation-190/1000/jetliner_plane_air_flight_dotted_jet_airplane-128.png" vertex="1" parent="1">
+          <mxGeometry x="744" y="2331" width="128" height="128" as="geometry" />
+        </mxCell>
+        <mxCell id="SIyfp_T04aYrkQ67f-0r-154" value="" style="shape=image;html=1;verticalAlign=top;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;imageAspect=0;aspect=fixed;image=https://cdn4.iconfinder.com/data/icons/transportation-190/1000/transportation_transport_ferry_boat_train_ferry_boat_ship-128.png" vertex="1" parent="1">
+          <mxGeometry x="607.9" y="2460.76" width="128" height="128" as="geometry" />
+        </mxCell>
+        <mxCell id="SIyfp_T04aYrkQ67f-0r-155" value="" style="image;sketch=0;aspect=fixed;html=1;points=[];align=center;fontSize=12;image=img/lib/mscae/Person.svg;" vertex="1" parent="1">
+          <mxGeometry x="787.5400000000001" y="2492.6299999999997" width="47.55" height="64.26" as="geometry" />
+        </mxCell>
+        <mxCell id="SIyfp_T04aYrkQ67f-0r-156" value="" style="shape=image;html=1;verticalAlign=top;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;imageAspect=0;aspect=fixed;image=https://cdn1.iconfinder.com/data/icons/ionicons-fill-vol-2/512/wifi-128.png" vertex="1" parent="1">
+          <mxGeometry x="430.15999999999997" y="2323.57" width="40.91" height="40.91" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
