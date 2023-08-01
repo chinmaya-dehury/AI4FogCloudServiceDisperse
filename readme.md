@@ -32,3 +32,78 @@ This thesis topic mainly focuses on efficient utilisation of cloud and fog resou
 - Testing scripts
 	- curl -X POST -F audio=@p001.mp3 'http://$IP:$PORT/api/sync' --output output.txt
 ![alt text](/docs/figs/fig6.png)
+
+## Deployment Instructions
+
+- Clone project:
+```bash
+git clone git@github.com:chinmaya-dehury/AI4FogCloudServiceDisperse.git
+```
+
+### Deployment of Environments
+
+- Goto [nodes_apis](/nodes_apis/)
+- In Smart Gateway, run:
+```bash
+./execute.sh smartgateway.py
+```
+- In Fog, run:
+```bash
+./execute.sh fog.py
+```
+- In Cloud, run:
+```bash
+./execute.sh cloud.py
+```
+
+### Deployment of Application 1
+
+- Goto [app1_yolo/app1_server](/app1_yolo/app1_server/)
+- In Fog, run:
+```bash
+docker build -t app1-fog -f DockerfileFog .
+docker run -d -p 0:5000 app1-fog:latest
+```
+- In Cloud, run:
+```bash
+docker build -t app1-cloud -f DockerfileCloud .
+docker run -d -p 0:5000 app1-cloud:latest
+```
+
+### Deployment of Application 2
+
+- Goto [app2_aeneas/app2_server](/app2_aeneas/app2_server/)
+- In Fog, run:
+```bash
+docker build -t app2-fog:latest .
+docker run -d -p 0:5000 app2-fog:latest
+```
+- In Cloud, run:
+```bash
+docker build -t app2-cloud:latest .
+docker run -d -p 0:5000 app2-cloud:latest
+```
+
+### Deployment of Application 3
+
+- Goto [app3_pocketsphinx/app3_server](/app3_pocketsphinx/app3_server/)
+- In Fog, run:
+```bash
+docker build -t app3-fog:latest .
+docker run -d -p 0:5000 app3-fog:latest
+```
+- In Cloud, run:
+```bash
+docker build -t app3-cloud:latest .
+docker run -d -p 0:5000 app3-cloud:latest
+```
+
+### Deployment of DRL Algorithm
+
+- Goto [drl_algorithm](/drl_algorithm/)
+- Update IPs/PORTs of both environments and applications in [h_configs.py](/drl_algorithm/h_configs.py)
+- In Smart Gateway, run:
+```bash
+./s_install.sh
+./s_execute.sh
+```
