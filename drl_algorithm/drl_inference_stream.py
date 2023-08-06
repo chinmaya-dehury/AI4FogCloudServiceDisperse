@@ -43,7 +43,7 @@ def run_inference():
 def input_run_stream():
     # setup settings
     slice_index = 0
-    service_id = 52
+    service_id = 1
     current_slice_frame = 0
     current_sr_frame = 0
     out_slice = None

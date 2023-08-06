@@ -68,7 +68,7 @@ USERS_LOCATIONS = [
 ]
 
 ########################################################################################################## SMART GATEWAY CONFIGS
-SMART_GATEWAY_IP = '192.168.8.102'
+SMART_GATEWAY_IP = 'localhost'
 SMART_GATEWAY_PORT = '5000'
 SMART_GATEWAY_METRICS_ENDPOINT = f"{ENDPOINT_BASE}://{SMART_GATEWAY_IP}:{SMART_GATEWAY_PORT}/{ENDPOINT_METRICS}"
                                                                                             # 192.168.8.102:5000/api/infos
