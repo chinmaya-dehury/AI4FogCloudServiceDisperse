@@ -32,6 +32,16 @@ def get_state_by_action(num_requests:int, num_slices:int, action:int) -> list:
                 state_space = list(state_space)
     return state_space
 
+def is_state_space_correctness(num_requests:int, num_slices:int) -> bool:
+    '''
+    Is the state space stored in disk
+
+    @param num_requests - number of service requests
+    @param num_slices - number of slices
+    '''
+    filename = STATE_SPACE_FILE.format(num_requests * num_slices)
+    return os.path.exists(filename)
+
 def verify_state_space_correctness(num_requests:int, num_slices:int) -> bool:
     '''
     Verify the correctness of state space that stored in disk

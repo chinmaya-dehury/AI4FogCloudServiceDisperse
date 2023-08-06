@@ -15,8 +15,9 @@ from h_configs import DynamicParams, PLOT_FOLDER, LOG_FOLDER, LOG_OUTPUT_PATH, \
     PLOT_LOG_FOG_PERCENTAGE_OUTPUT_PATH, PLOT_LOG_CLOUD_PERCENTAGE_OUTPUT_PATH, PLOT_PNG_FOG_PERCENTAGE_OUTPUT_PATH, PLOT_PNG_CLOUD_PERCENTAGE_OUTPUT_PATH, \
     PLOT_LOG_FOG_CPU_PERCENTAGE_OUTPUT_PATH, PLOT_LOG_CLOUD_CPU_PERCENTAGE_OUTPUT_PATH, PLOT_LOG_FOG_MEM_PERCENTAGE_OUTPUT_PATH, PLOT_LOG_CLOUD_MEM_PERCENTAGE_OUTPUT_PATH, \
     PLOT_PNG_CPU_PERCENTAGE_OUTPUT_PATH, PLOT_PNG_MEM_PERCENTAGE_OUTPUT_PATH, PLOT_PNG_SLICES_PERCENTAGE_OUTPUT_PATH, PLOT_LOG_MISSED_DEADLINES_OUTPUT_PATH, \
-    PLOT_PNG_MISSED_DEADLINES_OUTPUT_PATH
-
+    PLOT_PNG_MISSED_DEADLINES_OUTPUT_PATH, \
+    PLOT_LOG_THROUGHPUTS_FOG_OUTPUT_PATH, PLOT_LOG_THROUGHPUTS_CLOUD_OUTPUT_PATH, PLOT_LOG_THROUGHPUTS_SMARTGATEWAY_OUTPUT_PATH, \
+    PLOT_LOG_COMMTIMES_FOG_OUTPUT_PATH, PLOT_LOG_COMMTIMES_CLOUD_OUTPUT_PATH, PLOT_LOG_COMMTIMES_SMARTGATEWAY_OUTPUT_PATH
 ############################################################################################################ OTHER HELPER FUNCTIONS
 
 def get_latency(host, port):
@@ -143,6 +144,32 @@ def get_missed_deadlines_log_file():
 
     return log_file  
 
+def get_throughputs_log_file(env_type):
+    # create log folder if not exists
+    if not os.path.exists(PLOT_FOLDER):
+         os.makedirs(PLOT_FOLDER)
+
+    THROUGHPUTS = ''
+    if env_type == 0: THROUGHPUTS = PLOT_LOG_THROUGHPUTS_SMARTGATEWAY_OUTPUT_PATH
+    if env_type == 1: THROUGHPUTS = PLOT_LOG_THROUGHPUTS_FOG_OUTPUT_PATH
+    if env_type == 2: THROUGHPUTS = PLOT_LOG_THROUGHPUTS_CLOUD_OUTPUT_PATH
+    log_file = THROUGHPUTS.format(PLOT_FOLDER, DynamicParams.get_params()['service_type'], (DynamicParams.get_params()['service_count']*DynamicParams.get_params()['slice_count']))
+
+    return log_file  
+
+def get_commtimes_log_file(env_type):
+    # create log folder if not exists
+    if not os.path.exists(PLOT_FOLDER):
+         os.makedirs(PLOT_FOLDER)
+
+    COMM_TIMES = ''
+    if env_type == 0: COMM_TIMES = PLOT_LOG_COMMTIMES_SMARTGATEWAY_OUTPUT_PATH
+    if env_type == 1: COMM_TIMES = PLOT_LOG_COMMTIMES_FOG_OUTPUT_PATH
+    if env_type == 2: COMM_TIMES = PLOT_LOG_COMMTIMES_CLOUD_OUTPUT_PATH
+    log_file = COMM_TIMES.format(PLOT_FOLDER, DynamicParams.get_params()['service_type'], (DynamicParams.get_params()['service_count']*DynamicParams.get_params()['slice_count']))
+
+    return log_file  
+
 def get_rewards_plot_file():
     # create log folder if not exists
     if not os.path.exists(PLOT_FOLDER):
@@ -257,15 +284,13 @@ def debug(log_msg, is_printable=False, is_writable=False):
 
     if is_writable:
         # create log folder if not exists
-        log_folder = f"{LOG_FOLDER}/{DynamicParams.get_params()['service_count']}_{DynamicParams.get_params()['slice_count']}"
+        log_folder = f"{LOG_FOLDER}/{DynamicParams.get_params()['service_type']}_{(DynamicParams.get_params()['service_count']*DynamicParams.get_params()['slice_count'])}"
         if not os.path.exists(log_folder):
             os.makedirs(log_folder)
 
         # split logs into different parts to avoid large log files
-        if log_line_counter % 1000 == 0:
-            log_line_counter = 0
-            cur_date = datetime.now().strftime("%m_%d_%H_%M")
-            log_file = LOG_OUTPUT_PATH.format(log_folder, cur_date)
+        cur_date = datetime.now().strftime("%m_%d_%H_%M")
+        log_file = LOG_OUTPUT_PATH.format(log_folder, cur_date)
 
         # write to log
         logfile = open(log_file, "a")
@@ -497,6 +522,41 @@ def debug_missed_deadlines(percentages, is_printable=False):
         print(percentages_text)
 
 
+def debug_throughput(throughputs, envtype, is_printable=False):
+
+    log_file = get_throughputs_log_file(envtype)
+
+    # write to log
+    logfile = open(log_file, "w")
+    throughput_text = '['
+    for throughput in throughputs:
+        throughput_text += f'{throughput},'
+    throughput_text += ']'
+    logfile.write(throughput_text)
+    logfile.write("\n")
+    logfile.close()
+	
+    # print to console
+    if (is_printable):
+        print(throughput_text)
+
+def debug_commtime(throughputs, envtype, is_printable=False):
+
+    log_file = get_commtimes_log_file(envtype)
+
+    # write to log
+    logfile = open(log_file, "w")
+    throughput_text = '['
+    for throughput in throughputs:
+        throughput_text += f'{throughput},'
+    throughput_text += ']'
+    logfile.write(throughput_text)
+    logfile.write("\n")
+    logfile.close()
+	
+    # print to console
+    if (is_printable):
+        print(throughput_text)
 
 #################################################################################################################### PLOTTING
 

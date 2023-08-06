@@ -17,6 +17,8 @@ def get_max_user_latency(users):
 # find latency priority of user ui
 # formula: Pli(user latency priority) = li (latency of user ui) / max(li, 0 < i ≤ n)
 def get_user_latency_priority(user, max_user_latency):
+    if max_user_latency == 0:
+        return 0.1
     latency_priority = user.get_user_latency() / max_user_latency
     latency_priority = round(latency_priority, 3)
     return latency_priority
@@ -47,7 +49,7 @@ def get_service_demand(users, service):
 
 # find all services demands
 def get_all_service_demands(users):
-    all_service_demands = 0
+    all_service_demands = 0.1
     for user in users:
         for service in user.services:
             all_service_demands += get_service_demand(users, service)

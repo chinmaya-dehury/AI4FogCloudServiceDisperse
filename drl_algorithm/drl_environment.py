@@ -6,7 +6,7 @@ from c_slice_info import SliceInfo
 from c_system_modelling import get_service_priority
 from h_utils import debug
 import h_utils_state_space as ssutils
-from h_configs import DynamicParams, W1, W2, W3, W4, W5
+from h_configs import DynamicParams, ENVIRONMENT_NAMES, W1, W2, W3, W4, W5
 
 class Environment:
 	def __init__(self, users, w1=None, w2=None, w3=None, w4=None, w5=None):
@@ -15,6 +15,8 @@ class Environment:
 		self.slices_count = DynamicParams.get_params()['slice_count']
 		self.services_count = len(self.services)
 		self.total_slices = self.services_count * self.slices_count
+		if not ssutils.is_state_space_correctness(self.services_count, self.slices_count):
+			ssutils.save_state_space(self.services_count, self.slices_count)
 		self.state_space_len = ssutils.get_state_space_len(self.services_count, self.slices_count)
 		self.action_space_len = self.state_space_len
 		self.min_reward = 0
@@ -46,6 +48,7 @@ class Environment:
 			next_state_space[action.index(1)] = 1
 			selected_fog_slices, selected_cloud_slices, _ = self._get_selected_slices_by_state(next_state)
 			selected_slices = selected_fog_slices + selected_cloud_slices
+			print(f"\tCount of slices will be assigned to Fog is {len(selected_fog_slices)}, to Cloud is {len(selected_cloud_slices)}")
 
 			if len(selected_slices) > 0:
 				# parallel computation:
@@ -64,16 +67,12 @@ class Environment:
 				# reward = round(reward, 3)
 
 		# if agent moves last state
-		if self._is_state_last_state(next_state) or self.total_assigned_slices == self.total_slices:
+		if self.total_assigned_slices == self.total_slices:
 			done = True
 			next_state_space = self._get_terminal_state_space()
-
-		# merge slices of services if all slices are assigned
-		if len(selected_slices) > 0:
 			for service in self.services:
-				if service.is_completed():
-					service.user.set_service_avail(service.type, False)
-					service.merge_slices()
+				service.user.set_service_avail(service.type, False)
+				service.merge_slices()
 
 		# set state
 		self._set_state(next_state)
@@ -145,8 +144,10 @@ class Environment:
 		user = service.user
 		slice_index = selected_slice.slice_index
 		assigned_env = selected_slice.assigned_env
+		print(f"\t\tStarting assign ->  Service{service.id} Slice{slice_index} to {ENVIRONMENT_NAMES[assigned_env]}")
 		slice_execution_time = service.do_action_with_metrics(slice_index, assigned_env)
 		slice_info = self._calculate_slice_reward(user, service, slice_index, assigned_env, slice_execution_time)
+		print(f"\t\tEnding assign ->  Service{service.id} Slice{slice_index} to {ENVIRONMENT_NAMES[assigned_env]}")
 		return slice_info
 
 	# calculate reward function
@@ -176,6 +177,8 @@ class Environment:
 			available_cpu = Cloud.get_available_cpu()
 			available_mem = Cloud.get_available_memory()
 			environment_latency = Cloud.get_latency()
+		if environment_latency == 0:
+			environment_latency = 0.1
 
 		slice_size_ratio = round(slice_size/input_size, 3)
 		cpu_demand_ratio = round(slice_cpu_demand/available_cpu, 3)
@@ -206,7 +209,11 @@ class Environment:
 			mem_demand=slice_mem_demand,
 			total_cpu_demand=service.get_cpu_demand(),
 			total_mem_demand=service.get_mem_demand(),
-			slice_reward=reward
+			slice_reward=reward,
+			slice_frame_count = service.get_slice_frame_count(slice_index),
+			slice_execution_time = slice_execution_time,
+			slice_cpu_demand_ratio=cpu_demand_ratio*100,
+			slice_mem_demand_ratio=mem_demand_ratio*100
 		)
 
 		return slice_info
@@ -224,6 +231,7 @@ class Environment:
 			self.total_assigned_slices += 1
 			if slice_info.slice_reward < 0:
 				self.miss_deadline += 1
+			slice_info.service.assigned_slices_count += 1
 			slice_info_id = f"{slice_info.service.id}_{slice_info.slice_index}"
 			self.slices_tracker[slice_info_id] = slice_info
 
@@ -257,7 +265,11 @@ class Environment:
 							mem_demand=0,
 							total_cpu_demand=0,
 							total_mem_demand=0,
-							slice_reward=0
+							slice_reward=0,
+							slice_frame_count=0,
+							slice_execution_time=0,
+							slice_cpu_demand_ratio=0,
+							slice_mem_demand_ratio=0
 						)
 						selected_slices.append(slice_info)
 				i += 1

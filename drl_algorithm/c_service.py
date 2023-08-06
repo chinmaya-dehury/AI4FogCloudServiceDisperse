@@ -1,3 +1,4 @@
+import cv2
 import os
 import time
 from c_user import User
@@ -54,6 +55,17 @@ class Service:
 
     def get_slice_size(self, slice_index):
         return self.slices_size_map[slice_index]
+
+    def get_slice_frame_count(self, slice_index):
+        slice_path_list = self._get_slice_path_list(slice_index)
+        slice_path = slice_path_list[0]
+        cap = cv2.VideoCapture(slice_path)
+        if not cap.isOpened():
+            print("Error: Could not open the video file.")
+            return -1
+        total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+        cap.release()
+        return total_frames
 
     def get_slices_size_from_disk(self):
         slices_size_map = {}

@@ -1,7 +1,7 @@
 TRAINING_SERVICE_SLICE_PAIRS = {
-    'app1-sr-slice': [1, 1, 2],
-    # 'app2-sr-slice': [2, 3, 2],
-    # 'app3-sr-slice': [3, 3, 2],
+    'app1-sr-slice': [1, 3, 2],
+    'app2-sr-slice': [2, 3, 2],
+    'app3-sr-slice': [3, 3, 2],
 }
 
 class DynamicParams:
@@ -39,6 +39,12 @@ PLOT_LOG_CLOUD_CPU_PERCENTAGE_OUTPUT_PATH = '{}/{}_{}_cloud_cpu_percentage.txt'
 PLOT_LOG_FOG_MEM_PERCENTAGE_OUTPUT_PATH = '{}/{}_{}_fog_mem_percentage.txt'
 PLOT_LOG_CLOUD_MEM_PERCENTAGE_OUTPUT_PATH = '{}/{}_{}_cloud_mem_percentage.txt'
 PLOT_LOG_MISSED_DEADLINES_OUTPUT_PATH = '{}/{}_{}_missed_deadlines.txt'
+PLOT_LOG_THROUGHPUTS_FOG_OUTPUT_PATH = '{}/{}_{}_throughputs_fog.txt'
+PLOT_LOG_THROUGHPUTS_CLOUD_OUTPUT_PATH = '{}/{}_{}_throughputs_cloud.txt'
+PLOT_LOG_THROUGHPUTS_SMARTGATEWAY_OUTPUT_PATH = '{}/{}_{}_throughputs_smartgateway.txt'
+PLOT_LOG_COMMTIMES_FOG_OUTPUT_PATH = '{}/{}_{}_commtimes_fog.txt'
+PLOT_LOG_COMMTIMES_CLOUD_OUTPUT_PATH = '{}/{}_{}_commtimes_cloud.txt'
+PLOT_LOG_COMMTIMES_SMARTGATEWAY_OUTPUT_PATH = '{}/{}_{}_commtimes_smartgateway.txt'
 PLOT_PNG_REWARDS_OUTPUT_PATH = '{}/{}_{}_rewards.png'
 PLOT_PNG_LOSSES_OUTPUT_PATH = '{}/{}_{}_losses.png'
 PLOT_PNG_TOGETHER_OUTPUT_PATH = '{}/{}_{}_together.png'

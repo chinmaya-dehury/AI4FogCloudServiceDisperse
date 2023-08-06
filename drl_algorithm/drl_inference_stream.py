@@ -13,6 +13,8 @@ from drl_environment import Environment
 import h_utils_state_space as ssutils
 from c_user_factory import generate_users
 from c_system_modelling import set_users_priorities
+from drl_agent_factory import generate_agent
+import h_utils as utils
 from h_configs import SERVICE1_OUTPUT_PATH_LIST, SERVICE1_FOG_ENDPOINT, SERVICE1_CLOUD_ENDPOINT, \
     SERVICE_SENSITIVITY, DynamicParams
 
@@ -39,92 +41,77 @@ def run_inference():
 
 ### INPUT PART
 def input_run_stream():
-    # setup webcam
+    # setup settings
+    slice_index = 0
+    service_id = 52
+    current_slice_frame = 0
+    current_sr_frame = 0
+    out_slice = None
+    out_sr = None
+    # setup webcam settings
     cap = cv2.VideoCapture("input/streaming.mp4") #cv2.VideoCapture(0)
     if not cap.isOpened():
         raise IOError("Cannot open webcam")
-    service_id = 1
-    slice_index = 0
-    frame_counter = 0
-    all_frames = []
-    slice_frames = []
-    elapsed_sets = set()
-    start_time = time.time()
-    while True:
-        _, frame = cap.read()
-        frame_counter += 1
-        frame = cv2.resize(frame, None, fx=0.5, fy=0.5, interpolation=cv2.INTER_AREA)
-        cv2.imshow('Input', frame)
-
-        sr_folder =  f"sr{service_id}"
-
-        is_all_frames_done, is_slice_frames_done = \
-            input_make_slices_by_frame(all_frames, slice_frames, frame, elapsed_sets, start_time)
-        if is_slice_frames_done:
-            slices_folder = f"{sr_folder}_slices"
-            slice_mp4 = f"sr{service_id}_{slice_index}.mp4"
-            input_save_frames(slice_frames, f"{input_stream_folder}/{sr_folder}/{slices_folder}", slice_mp4)
-            slice_index += 1
-        if is_all_frames_done:
-            sr_mp4 = f"sr{service_id}.mp4"
-            input_save_frames(all_frames, f"{input_stream_folder}/{sr_folder}", sr_mp4)
-            model_thread = threading.Thread(target=run_model_thread, args=(service_id,))
-            model_thread.start()
-            service_id += 1
-            slice_index = 0
-            all_frames = []
-            slice_frames = []
-            elapsed_sets = set()
-            start_time = time.time()
-
-        if is_slice_frames_done or is_all_frames_done:
-            slice_frames = []
-
-
-        if cv2.waitKey(1) == 27:
+    fps = cap.get(cv2.CAP_PROP_FPS)
+    frame_slice_sec = int(fps * 1)
+    frame_sr_sec = int(fps * 6)
+    total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+    cap.set(cv2.CAP_PROP_POS_FRAMES, ((service_id-1)*frame_sr_sec))
+    while cap.isOpened():
+        ret, frame = cap.read()
+        if not ret:
             break
-        if frame_counter == cap.get(cv2.CAP_PROP_FRAME_COUNT):
-            frame_counter = 0
-            cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
+        cv2.imshow('Input', frame)
+        if cv2.waitKey(25) & 0xFF == ord('q'):
+            break
+        # frames tracker
+        current_slice_frame += 1
+        current_sr_frame += 1
+        # sr folder, file setting
+        sr_folder = f"sr{service_id}"
+        out_sr_folder = f"{input_stream_folder}/{sr_folder}"
+        sr_name = f"sr{service_id}.mp4"
+        out_sr_name = f"{out_sr_folder}/{sr_name}"
+        # slice folder, file setting
+        slice_folder = f"{sr_folder}_slices"
+        out_slice_folder = f"{input_stream_folder}/{sr_folder}/{slice_folder}"
+        slice_name = f"sr{service_id}_{slice_index}.mp4"
+        out_slice_name = f"{out_slice_folder}/{slice_name}"
+        # save input frames
+        if out_slice is None:
+            if not os.path.exists(out_slice_folder):
+                os.makedirs(out_slice_folder)
+            out_slice = cv2.VideoWriter(f"{out_slice_name}", cv2.VideoWriter_fourcc(*'mp4v'), fps, (int(cap.get(3)), int(cap.get(4))))
+        if out_sr is None:
+            if not os.path.exists(out_sr_folder):
+                os.makedirs(out_sr_folder)
+            out_sr = cv2.VideoWriter(f"{out_sr_name}", cv2.VideoWriter_fourcc(*'mp4v'), fps, (int(cap.get(3)), int(cap.get(4))))
+        if current_slice_frame <= frame_slice_sec:
+            out_slice.write(frame)
+            if current_slice_frame == frame_slice_sec:
+                out_slice.release()
+                out_slice = None
+                slice_index += 1
+                current_slice_frame = 0
+        if current_sr_frame <= frame_sr_sec:
+            out_sr.write(frame)
+            if current_sr_frame == frame_sr_sec:
+                slices_count = slice_index
+                model_thread = threading.Thread(target=run_model_thread, args=(service_id, slices_count))
+                model_thread.start()
+                out_sr.release()
+                out_sr = None
+                service_id += 1
+                slice_index = 0
+                current_sr_frame = 0
+        current_frame = int(cap.get(cv2.CAP_PROP_POS_FRAMES))
+        if current_frame == total_frames:
+            slices_count = slice_index + 1
+            model_thread = threading.Thread(target=run_model_thread, args=(service_id, slices_count))
+            model_thread.start()
 
     cap.release()
 
-def input_make_slices_by_frame(all_frames, slice_frames, frame, elapsed_sets, start_time):
-    is_all_frames_done = False
-    is_slice_frames_done = False
-    all_frames.append(frame)
-    slice_frames.append(frame)
-    elapsed_sets.add(time.time())
-    is_slice_frames_done = True
-    if len(elapsed_sets) == 6:
-        is_all_frames_done = True
-    return is_all_frames_done, is_slice_frames_done
-
-def input_make_slices_by_time(all_frames, slice_frames, frame, elapsed_sets, start_time):
-    is_all_frames_done = False
-    is_slice_frames_done = False
-    all_frames.append(frame)
-    slice_frames.append(frame)
-    slicing_duration = 1 # seconds
-    requesting_duration = 6 # seconds
-    elapsed_time = round((time.time() - start_time))
-    if elapsed_time % slicing_duration==0 and elapsed_time not in elapsed_sets and elapsed_time != 0:
-        elapsed_sets.add(elapsed_time)
-        is_slice_frames_done = True
-    if elapsed_time >= requesting_duration:
-        is_all_frames_done = True
-    return is_all_frames_done, is_slice_frames_done
-
-def input_save_frames(frames, folder, filename):
-    fps = 30
-    fourcc = cv2.VideoWriter_fourcc(*'mp4v')
-    frame_width, frame_height = frames[0].shape[1], frames[0].shape[0]
-    if not os.path.exists(folder):
-        os.makedirs(folder)
-    out = cv2.VideoWriter(f"{folder}/{filename}", fourcc, fps, (frame_width, frame_height))
-    for frame in frames:
-        out.write(frame)
-    out.release()
 
 ### OUTPUT PART
 def output_play_video(video_path):
@@ -176,16 +163,15 @@ class FolderWatcher(FileSystemEventHandler):
 
 
 ### AI PART
-def run_model_thread(service_id):
+def run_model_thread(service_id, slices_count):
     with semaphore:
-        run_model(service_id)
+        run_model(service_id, slices_count)
         time.sleep(3)
 
-def run_model(service_id):
-    service_type = 1
+def run_model(service_id, slices_count):
+    app_type = 1
     service_count = 1
-    slice_count = 6
-    DynamicParams.set_params(service_type, service_count, slice_count)
+    DynamicParams.set_params(app_type, service_count, slices_count)
     run_model_helper(service_id)
 
 def run_model_helper(service_id):
@@ -222,26 +208,56 @@ def run_model_helper(service_id):
 
     # init environment
     done = False
+    total_reward = 0
     environment = Environment(users)
     environment.reset()
 
     # load back the model
     model_name = f"models/model_{app_type}_{(services_count*slices_count)}.pth"
-    model = DRLModel(input_layer_size, hidden_layer_size, output_layer_size)
-    state_dict = torch.load(model_name)
-    model.load_state_dict(state_dict)
+    if os.path.exists(model_name):
+        model = DRLModel(input_layer_size, hidden_layer_size, output_layer_size)
+        state_dict = torch.load(model_name)
+        model.load_state_dict(state_dict)
+        while not done:
+            # get state
+            state = environment.get_state_space()
 
-    total_reward = 0
-    while not done:
-        # get state
-        state = environment.get_state_space()
+            # get action 
+            action = get_model_action(model, state, output_layer_size)
 
-        # get action 
-        action = get_model_action(model, state, output_layer_size)
+            # perform action and get new state
+            reward, done, info = environment.step(action)
+            total_reward += reward
+            slices_tracker = info[0]
+            if done:
+                metrics_logger(slices_tracker)
+    # load back agent
+    else:
+        agent = generate_agent(input_layer_size, hidden_layer_size, output_layer_size)
+        print(f"OFFLINE TRAINING IS STARTED")
+        print(f"app_type={app_type},  slices_count={slices_count},  services_count={services_count}")
+        while not done:
+            # observe the current state s
+            current_state = environment.get_state_space()
+            
+            # select an action a
+            action, _ = agent.get_action(current_state)
 
-        # perform action and get new state
-        reward, done, _ = environment.step(action)
-        total_reward += reward
+            # execute the action a, move to the next state s′ and observe the reward r
+            reward, done, info = environment.step(action)
+            total_reward += reward
+            slices_tracker = info[0]
+            print(f"OFFLINE TRAINING REWARD = {reward}, ACTION = {action.index(1)}, DONE = {done}")
+            next_state = environment.get_state_space()
+
+            # store the transition (s, a, r, d, s′) in the buffer
+            agent.train_short_memory(current_state, action, reward, done, next_state)
+            agent.remember(current_state, action, reward, done, next_state)
+            if done:
+                metrics_logger(slices_tracker)
+
+        # store the transition (s, a, r, d, s′) in the long memory
+        agent.train_long_memory()
 
     # copy to output stream folder
     file_name = f"{SERVICE1_OUTPUT_PATH_LIST[1]}_final.{SERVICE1_OUTPUT_PATH_LIST[2]}"
@@ -257,4 +273,84 @@ def get_model_action(model, state, output_layer_size):
         prediction = torch.argmax(prediction).item()
     action[prediction] = 1
     return action
+
+def metrics_logger(slices_tracker):
+    ### collect metrics
+    fog_cpu = 0; cloud_cpu = 0; fog_mem = 0; cloud_mem = 0
+    fog_frames = 0; cloud_frames = 0; smartgateway_frames = 0
+    fog_commtimes = 0; cloud_commtimes = 0; smartgateway_commtimes = 0
+    for _, value in slices_tracker.items():
+        env = value.assigned_env
+        frames = value.slice_frame_count
+        commtime = value.slice_execution_time
+        if env == 1:
+            fog_frames += frames
+            fog_commtimes += commtime
+            fog_cpu += value.slice_cpu_demand_ratio
+            fog_mem += value.slice_mem_demand_ratio
+        if env == 2:
+            cloud_frames += frames
+            cloud_commtimes += commtime
+            cloud_cpu += value.slice_cpu_demand_ratio
+            cloud_mem += value.slice_mem_demand_ratio
+        smartgateway_frames += frames
+        smartgateway_commtimes += commtime
+
+
+    ### log throughput
+    # for smartgateway
+    envtype=0
+    throughputs = utils.f_read_plot_list(utils.get_throughputs_log_file(envtype))
+    throughputs.append(smartgateway_frames)
+    utils.debug_throughput(throughputs, envtype)
+    # for fog
+    envtype=1
+    throughputs = utils.f_read_plot_list(utils.get_throughputs_log_file(envtype))
+    throughputs.append(fog_frames)
+    utils.debug_throughput(throughputs, envtype)
+    # for cloud
+    envtype=2
+    throughputs = utils.f_read_plot_list(utils.get_throughputs_log_file(envtype))
+    throughputs.append(cloud_frames)
+    utils.debug_throughput(throughputs, envtype)
+
+
+    ### log communication time
+    # for smartgateway
+    envtype=0
+    commtimes = utils.f_read_plot_list(utils.get_commtimes_log_file(envtype))
+    commtimes.append(smartgateway_commtimes)
+    utils.debug_commtime(commtimes, envtype)
+    # for fog
+    envtype=1
+    commtimes = utils.f_read_plot_list(utils.get_commtimes_log_file(envtype))
+    commtimes.append(fog_commtimes)
+    utils.debug_commtime(commtimes, envtype)
+    # for cloud
+    envtype=2
+    commtimes = utils.f_read_plot_list(utils.get_commtimes_log_file(envtype))
+    commtimes.append(cloud_commtimes)
+    utils.debug_commtime(commtimes, envtype)
+
+
+    ### log cpu percentages
+    # for fog
+    cpus = utils.f_read_plot_list(utils.get_fog_cpu_percentage_log_file())
+    cpus.append(fog_cpu)
+    utils.debug_fog_cpu_percentage(cpus)
+    # for cloud
+    cpus = utils.f_read_plot_list(utils.get_cloud_cpu_percentage_log_file())
+    cpus.append(cloud_cpu)
+    utils.debug_cloud_cpu_percentage(cpus)
+
+
+    ### log mem percentages
+    # for fog
+    mems = utils.f_read_plot_list(utils.get_fog_mem_percentage_log_file())
+    mems.append(fog_mem)
+    utils.debug_fog_mem_percentage(mems)
+    # for cloud
+    mems = utils.f_read_plot_list(utils.get_cloud_mem_percentage_log_file())
+    mems.append(cloud_mem)
+    utils.debug_cloud_mem_percentage(mems)
 
