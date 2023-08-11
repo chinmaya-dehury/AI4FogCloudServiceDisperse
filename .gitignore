@@ -6,7 +6,6 @@
 __pycache__
 state_spaces
 models
-results
 
 # not ignore followings
 # !drl/input/app1_video.mp4

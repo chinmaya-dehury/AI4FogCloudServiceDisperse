@@ -47,9 +47,13 @@ git clone git@github.com:chinmaya-dehury/AI4FogCloudServiceDisperse.git
 ```bash
 ./execute.sh smartgateway.py
 ```
-- In Fog, run:
+- In Fog Master Node, run:
 ```bash
-./execute.sh fog.py
+./execute.sh fog_master_node.py
+```
+- In Fog Worker Node, run:
+```bash
+./execute.sh fog_worker_node.py
 ```
 - In Cloud, run:
 ```bash
