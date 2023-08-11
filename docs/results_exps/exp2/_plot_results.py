@@ -47,6 +47,8 @@ def f_get_nth_time(lst, nth_time, collected_time):
 
 ################################################################################################## FUNCTIONS -> PLOTTING CORE
 def f_plot(x, y1, y2, y3, title, x_label, y_label, output_path):
+    plt.figure(figsize=(12, 8))
+
     # plotting
     if y1 is not None:
         plt.plot(x, y1, marker='o', color='green', label='Smart Gateway')
@@ -56,18 +58,82 @@ def f_plot(x, y1, y2, y3, title, x_label, y_label, output_path):
         plt.plot(x, y3, marker='o', color='blue', label='Cloud')
 
     # styling
-    plt.title(title)
-    plt.xlabel(x_label)
-    plt.ylabel(y_label)
-    plt.legend()
+    # plt.title(title)
+    # plt.xlabel(x_label)
+    # plt.ylabel(y_label)
+    # plt.legend()
+    # plt.grid(axis='both', linestyle='--', alpha=0.7)
+    # plt.xlim(0)
+    # plt.ylim(0)
+    # plt.xticks(x)
+    # plt.title(title, fontsize=16)  # Adjust the fontsize as needed
+    plt.xlabel(x_label, fontsize=30)  # Adjust the fontsize as needed
+    plt.ylabel(y_label, fontsize=30)  # Adjust the fontsize as needed
+    plt.legend(fontsize=20)  # Adjust the fontsize as needed
     plt.grid(axis='both', linestyle='--', alpha=0.7)
     plt.xlim(0)
     plt.ylim(0)
-    plt.xticks(x)
+    plt.xticks(x, fontsize=20)  # Adjust the fontsize as needed
+    plt.yticks(fontsize=20)
 
     # save
     plt.savefig(output_path, dpi=300)
     # plt.show()
+    plt.close()
+
+
+def f_plot_2x2(x, y1, y2, y3, title, x_label, y_label, output_path):
+    # Create a 2x2 grid of subplots
+    fig, axs = plt.subplots(2, 2, figsize=(10, 8))
+
+    # Plotting in the first subplot (top-left)
+    if y1 is not None:
+        axs[0, 0].plot(x, y1, marker='o', color='green', label='Smart Gateway')
+        axs[0, 0].tick_params(axis='both', labelsize=12)
+        # axs[0, 0].set_title(title[0], fontsize=16)
+        axs[0, 0].set_xlabel(x_label, fontsize=14)
+        axs[0, 0].set_ylabel(y_label, fontsize=14)
+        axs[0, 0].legend()
+        axs[0, 0].grid(axis='both', linestyle='--', alpha=0.7)
+        axs[0, 0].set_xlim(0)
+        axs[0, 0].set_ylim(0)
+        axs[0, 0].set_xticks(x)
+
+    # Plotting in the second subplot (top-right)
+    if y2 is not None:
+        axs[0, 1].plot(x, y2, marker='o', color='red', label='Fog')
+        axs[0, 1].tick_params(axis='both', labelsize=12)
+        # axs[0, 1].set_title(title[1], fontsize=16)
+        axs[0, 1].set_xlabel(x_label, fontsize=14)
+        axs[0, 1].set_ylabel(y_label, fontsize=14)
+        axs[0, 1].legend()
+        axs[0, 1].grid(axis='both', linestyle='--', alpha=0.7)
+        axs[0, 1].set_xlim(0)
+        axs[0, 1].set_ylim(0)
+        axs[0, 1].set_xticks(x)
+
+    # Plotting in the third subplot (bottom-left)
+    if y3 is not None:
+        axs[1, 0].plot(x, y3, marker='o', color='blue', label='Cloud')
+        axs[1, 0].tick_params(axis='both', labelsize=12)
+        # axs[1, 0].set_title(title[2], fontsize=16)
+        axs[1, 0].set_xlabel(x_label, fontsize=14)
+        axs[1, 0].set_ylabel(y_label, fontsize=14)
+        axs[1, 0].legend()
+        axs[1, 0].grid(axis='both', linestyle='--', alpha=0.7)
+        axs[1, 0].set_xlim(0)
+        axs[1, 0].set_ylim(0)
+        axs[1, 0].set_xticks(x)
+
+
+    # Remove the empty fourth subplot (bottom-right)
+    axs[1, 1].remove()
+
+    # Adjust layout to prevent overlapping labels and titles
+    plt.tight_layout()
+
+    # Save the figure
+    plt.savefig(output_path, dpi=300)
     plt.close()
 
 def f_plot_new(x, y1, y2, y3, title, x_label, y_label, output_path):
@@ -107,18 +173,20 @@ def f_plot_new(x, y1, y2, y3, title, x_label, y_label, output_path):
 
 
 def f_plot_bar_2(x, fog_percentages, cloud_percentages, title, x_label, y_label, output_path):
+    plt.figure(figsize=(10, 6))
+
     # datas
     total_percentage = np.arange(len(fog_percentages))
     _, ax = plt.subplots()
     bar_width = 0.35
-    plt.title(title)
+    # plt.title(title)
     ax.bar(total_percentage - bar_width/2, fog_percentages, bar_width, color='skyblue', edgecolor='gray', label='Fog')
     ax.bar(total_percentage + bar_width/2, cloud_percentages, bar_width, color='lightgreen', edgecolor='gray', label='Cloud')
-    ax.set_xticks(total_percentage)
-    ax.set_xticklabels(x)
-    ax.set_xlabel(x_label)
-    ax.set_ylabel(y_label)
-    ax.legend()
+    ax.set_xticks(total_percentage, fontsize=15)
+    ax.set_xticklabels(x, fontsize=15)
+    ax.set_xlabel(x_label, fontsize=15)
+    ax.set_ylabel(y_label, fontsize=15)
+    ax.legend(fontsize=15, loc='lower right')
     plt.grid(axis='both', linestyle='--', alpha=0.7)
     plt.xlim(0)
     plt.ylim(0)
@@ -140,7 +208,7 @@ def plot_throughputs(apptype, nth_time, collected_time = 6):
     y1 = f_get_nth_time(y1, nth_time, collected_time)
     y2 = f_get_nth_time(y2, nth_time, collected_time)
     y3 = f_get_nth_time(y3, nth_time, collected_time)
-    f_plot(x, y1, y2, y3, "Throughputs Metrics", "Streaming Time (seconds)", "Throughputs (total frames per second)", f"app{apptype}_throughputs.png")
+    f_plot(x, y1, y2, y3, "Throughputs Metrics", "Streaming Time (seconds)", "Throughputs (slices per second)", f"app{apptype}_throughputs.png")
 
 def plot_commtimes(apptype, nth_time, collected_time = 6):
     y1 = f_read_plot_dict(f"{apptype}*commtimes_smartgateway.txt")
@@ -153,7 +221,7 @@ def plot_commtimes(apptype, nth_time, collected_time = 6):
     y1 = f_get_nth_time(y1, nth_time, collected_time)
     y2 = f_get_nth_time(y2, nth_time, collected_time)
     y3 = f_get_nth_time(y3, nth_time, collected_time)
-    f_plot(x, y1, y2, y3, "Communication Time Metrics", "Streaming Time (seconds)", "Communication Time (millisecond)", f"app{apptype}_commtimes.png")
+    f_plot(x, y1, y2, y3, "Communication Time Metrics", "Streaming Time (seconds)", "Communication Time (ms)", f"app{apptype}_commtimes.png")
 
 def plot_cpu(apptype, nth_time, collected_time = 6):
     y2 = f_read_plot_dict(f"{apptype}*fog_cpu_percentage.txt")
