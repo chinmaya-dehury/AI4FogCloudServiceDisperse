@@ -7,3 +7,4 @@ pocketsphinx
 SpeechRecognition
 flask_caching
 psutil
+pydub

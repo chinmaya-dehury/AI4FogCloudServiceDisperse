@@ -95,8 +95,9 @@ def train_helper():
 
             slices_tracker = info[0]
 
-            print(f"Episode = {episode}/{EPISODES}  Reward = {reward}  Episode Reward = {episode_reward}  " +
-                    f"Miss deadline = {episode_missed_deadline}  Action = {action.index(1)}  ActionBy = {chosen}  Done = {done}")
+            utils.debug(f"Episode = {episode}/{EPISODES}  Reward = {reward}  Episode Reward = {episode_reward}  " +
+                    f"Miss deadline = {episode_missed_deadline}  Action = {action.index(1)}  ActionBy = {chosen}  Done = {done}",
+                    is_printable=True, is_writable=True)
 
         # store the transition (s, a, r, d, s′) in the long memory
         agent.train_long_memory()
@@ -119,9 +120,7 @@ def train_helper():
     # save model
     agent.model.save()
     # save plots
-    save_plots(episode_rewards, episode_losses, episode_fog_percentages, episode_cloud_percentages, episode_fog_cpu_percentages, 
-                episode_cloud_cpu_percentages, episode_fog_mem_percentages, episode_cloud_mem_percentages, episode_missed_deadlines,
-                episode_success_rates)
+    save_plots(episode_rewards, episode_losses,  episode_missed_deadlines, episode_success_rates)
 
 def setup_pytorch():
     # set seeds
@@ -142,25 +141,23 @@ def store_fog_cloud_infos(slices_tracker, episode_fog_percentages, episode_cloud
 
     if slices_tracker is not None and len(slices_tracker) == (services_count * slices_count):
         fog_count = 0; cloud_count = 0
-        fog_cpu_demand = 0; cloud_cpu_demand = 0; total_cpu_demand = 0
-        fog_mem_demand = 0; cloud_mem_demand = 0; total_mem_demand = 0
+        fog_cpu = 0; cloud_cpu = 0
+        fog_mem = 0; cloud_mem = 0
         for slice_info in slices_tracker.values():
             if slice_info.assigned_env == 1:
                 fog_count += 1
-                fog_cpu_demand += slice_info.cpu_demand
-                fog_mem_demand += slice_info.mem_demand
+                fog_cpu += slice_info.slice_cpu_usage
+                fog_mem += slice_info.slice_mem_usage
             elif slice_info.assigned_env == 2:
                 cloud_count += 1
-                cloud_cpu_demand += slice_info.cpu_demand
-                cloud_mem_demand += slice_info.mem_demand
-            total_cpu_demand += slice_info.total_cpu_demand
-            total_mem_demand += slice_info.total_mem_demand
+                cloud_cpu += slice_info.slice_cpu_usage
+                cloud_mem += slice_info.slice_mem_usage
         episode_fog_percentage = fog_count/len(slices_tracker) * 100
         episode_cloud_percentage = cloud_count/len(slices_tracker) * 100
-        episode_fog_cpu_percentage = fog_cpu_demand/total_cpu_demand * 100
-        episode_cloud_cpu_percentage = cloud_cpu_demand/total_cpu_demand * 100
-        episode_fog_mem_percentage = fog_mem_demand/total_mem_demand*100
-        episode_cloud_mem_percentage = cloud_mem_demand/total_mem_demand*100
+        episode_fog_cpu_percentage = fog_cpu if fog_cpu < 100 else fog_cpu / (fog_cpu//100+1)
+        episode_fog_mem_percentage = fog_mem if fog_mem < 100 else fog_mem / (fog_mem//100+1)
+        episode_cloud_cpu_percentage = cloud_cpu if cloud_cpu < 100 else cloud_cpu / (cloud_cpu//100+1)
+        episode_cloud_mem_percentage = cloud_mem if cloud_mem < 100 else cloud_mem / (cloud_mem//100+1)
     else:
         episode_fog_percentage = 50
         episode_cloud_percentage = 50
@@ -175,48 +172,21 @@ def store_fog_cloud_infos(slices_tracker, episode_fog_percentages, episode_cloud
     episode_fog_mem_percentages.append(episode_fog_mem_percentage)
     episode_cloud_mem_percentages.append(episode_cloud_mem_percentage)
 
-def save_plots(episode_rewards, episode_losses, episode_fog_percentages, episode_cloud_percentages, episode_fog_cpu_percentages, 
-               episode_cloud_cpu_percentages, episode_fog_mem_percentages, episode_cloud_mem_percentages, episode_missed_deadlines,
-               episode_success_rates):
+def save_plots(episode_rewards, episode_losses, episode_missed_deadlines, episode_success_rates):
     
-    episode_range = list(range(1, EPISODES+1))
+    episode_range = list(range(1, 10+1))
     
     # divide 1000
-    episode_range = list(range(1, 10+1))
     episode_rewards = utils.divide_1000(episode_rewards)
     episode_losses = utils.divide_1000(episode_losses)
     episode_success_rates = utils.divide_1000(episode_success_rates)
     episode_missed_deadlines = utils.divide_1000(episode_missed_deadlines)
-    episode_fog_percentages = utils.divide_1000(episode_fog_percentages)
-    episode_cloud_percentages = utils.divide_1000(episode_cloud_percentages)
-    episode_fog_cpu_percentages = utils.divide_1000(episode_fog_cpu_percentages)
-    episode_cloud_cpu_percentages = utils.divide_1000(episode_cloud_cpu_percentages)
-    episode_fog_mem_percentages = utils.divide_1000(episode_fog_mem_percentages)
-    episode_cloud_mem_percentages = utils.divide_1000(episode_cloud_mem_percentages)
 
     # cummulative average
     episode_rewards = utils.cum_avg(episode_rewards)
-    # episode_success_rates = utils.cum_avg(episode_success_rates)
-    # episode_missed_deadlines = utils.cum_avg(episode_missed_deadlines)
 
     # save logs
     utils.debug_rewards(episode_rewards)
     utils.debug_losses(episode_losses)
     utils.debug_success_rates(episode_success_rates)
     utils.debug_missed_deadlines(episode_missed_deadlines)
-    utils.debug_fog_percentage(episode_fog_percentages)
-    utils.debug_cloud_percentage(episode_cloud_percentages)
-    utils.debug_fog_cpu_percentage(episode_fog_cpu_percentages)
-    utils.debug_cloud_cpu_percentage(episode_cloud_cpu_percentages)
-    utils.debug_fog_mem_percentage(episode_fog_mem_percentages)
-    utils.debug_cloud_mem_percentage(episode_cloud_mem_percentages)
-
-    # save plots
-    utils.f_save_plot_list(episode_rewards, "Episodes", "Cummulative Average Rewards", utils.get_rewards_plot_file())
-    utils.f_save_plot_list(episode_losses,  "Episodes", "Losses", utils.get_losses_plot_file())
-    utils.f_save_plot_list(episode_success_rates,  "Episodes", "Success Rates", utils.get_success_plot_file())
-    utils.f_save_plot_list(episode_missed_deadlines,  "Episodes", "Missed Deadlines", utils.get_missed_deadlines_plot_file())
-    # utils.f_save_plot_bar(episode_range, episode_missed_deadlines,  "Episodes", "Missed Deadlines", utils.get_missed_deadlines_plot_file())
-    utils.f_save_plot_bar_2(episode_range, episode_fog_percentages, episode_cloud_percentages, "Episodes", "Percentage of Slices", utils.get_slices_percentage_plot_file())
-    utils.f_save_plot_bar_2(episode_range, episode_fog_cpu_percentages, episode_cloud_cpu_percentages, "Episodes", "Percentage of CPU", utils.get_cpu_percentage_plot_file())
-    utils.f_save_plot_bar_2(episode_range, episode_fog_mem_percentages, episode_cloud_mem_percentages, "Episodes", "Percentage of MEM", utils.get_mem_percentage_plot_file())

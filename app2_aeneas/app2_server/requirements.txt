@@ -4,3 +4,4 @@ numpy>=1.9
 Flask
 flask_caching
 psutil
+pydub

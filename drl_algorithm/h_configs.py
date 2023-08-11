@@ -52,8 +52,6 @@ PLOT_PNG_SUCCESS_OUTPUT_PATH = '{}/{}_{}_success_rates.png'
 PLOT_PNG_FOG_PERCENTAGE_OUTPUT_PATH = '{}/{}_{}_fog_percentage.png'
 PLOT_PNG_CLOUD_PERCENTAGE_OUTPUT_PATH = '{}/{}_{}_cloud_percentage.png'
 PLOT_PNG_SLICES_PERCENTAGE_OUTPUT_PATH = '{}/{}_{}_slices_percentage.png'
-PLOT_PNG_CPU_PERCENTAGE_OUTPUT_PATH = '{}/{}_{}_cpu_demand.png'
-PLOT_PNG_MEM_PERCENTAGE_OUTPUT_PATH = '{}/{}_{}_mem_demand.png'
 PLOT_PNG_MISSED_DEADLINES_OUTPUT_PATH = '{}/{}_{}_missed_deadlines.png'
 
 MODEL_OUTPUT_PATH = '{}/model_{}_{}_{}.pth'
@@ -112,7 +110,7 @@ SERVICE2_INPUT_PATH_LIST = [
 ]
 SERVICE2_OUTPUT_PATH_LIST = ["output", "app2_output", "srt"]        # [folder, filename, fileextension]
 SERVICE2_FOG_PORT = "30001"                                         # PRODUCTION -> "30001"  |   LOCAL -> "32769"
-SERVICE2_CLOUD_PORT = "49154"                                       # PRODUCTION -> "49154"  |   LOCAL -> "32769"
+SERVICE2_CLOUD_PORT = "49157"                                       # PRODUCTION -> "49154"  |   LOCAL -> "32769"
 SERVICE2_FOG_ENDPOINT = f"{ENDPOINT_BASE}://{FOG_IP}:{SERVICE2_FOG_PORT}/{ENDPOINT_DETECT}"
 SERVICE2_CLOUD_ENDPOINT = f"{ENDPOINT_BASE}://{CLOUD_IP}:{SERVICE2_CLOUD_PORT}/{ENDPOINT_DETECT}"
 
@@ -123,14 +121,15 @@ SERVICE3_INPUT_PATH_LIST = [
 ]
 SERVICE3_OUTPUT_PATH_LIST = ["output", "app3_output", "txt"]        # [folder, filename, fileextension]
 SERVICE3_FOG_PORT = "30002"                                         # PRODUCTION -> "30002"  |   LOCAL -> "32770"
-SERVICE3_CLOUD_PORT = "49153"                                       # PRODUCTION -> "49153"  |   LOCAL -> "32770"
+SERVICE3_CLOUD_PORT = "49158"                                       # PRODUCTION -> "49153"  |   LOCAL -> "32770"
 SERVICE3_FOG_ENDPOINT = f"{ENDPOINT_BASE}://{FOG_IP}:{SERVICE3_FOG_PORT}/{ENDPOINT_DETECT}"
 SERVICE3_CLOUD_ENDPOINT = f"{ENDPOINT_BASE}://{CLOUD_IP}:{SERVICE3_CLOUD_PORT}/{ENDPOINT_DETECT}"
 
 
 
 ########################################################################################################## DRL CONFIGS
-EPISODES = 10_000
+EPISODES = 10000
+INFERENCE_RUN_TIME = 100
 AGENT_BATCH_SIZE = 64
 AGENT_MAX_MEMORY = 5_000
 AGENT_LEARNING_RATE = 0.001

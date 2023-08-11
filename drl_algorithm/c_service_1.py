@@ -66,9 +66,15 @@ class Service1(Service):
     def _do_action(self, slice_index, assigned_env):
         slice_path_list = self._get_slice_path_list(slice_index)
         endpoint_url = self.api_endpoint_list[0] if assigned_env == 1 else self.api_endpoint_list[1]
-        response = requests.post(url = endpoint_url, files={'video': open(slice_path_list[0], 'rb')})
-        output = response.content
-        return output
+        slice_id = f"{self.id}_{slice_index}"
+        response = requests.post(url = endpoint_url, files={'video': open(slice_path_list[0], 'rb')}, data={'request_id':slice_id})
+        response = json.loads(response.content)
+        throughput = response['total_throughput'] if 'total_throughput' in response else 0
+        request_receive_time = response['request_receive_time']  if 'request_receive_time' in response else 0
+        output_video_name = response['output_video_name']
+        video_response = requests.get(f"{endpoint_url}/{output_video_name}")
+        output = video_response.content
+        return slice_id, output, throughput, request_receive_time
 
 
     def _save_output(self, slice_index, output):

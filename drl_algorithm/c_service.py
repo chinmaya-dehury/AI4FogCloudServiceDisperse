@@ -56,16 +56,6 @@ class Service:
     def get_slice_size(self, slice_index):
         return self.slices_size_map[slice_index]
 
-    def get_slice_frame_count(self, slice_index):
-        slice_path_list = self._get_slice_path_list(slice_index)
-        slice_path = slice_path_list[0]
-        cap = cv2.VideoCapture(slice_path)
-        if not cap.isOpened():
-            print("Error: Could not open the video file.")
-            return -1
-        total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
-        cap.release()
-        return total_frames
 
     def get_slices_size_from_disk(self):
         slices_size_map = {}
@@ -85,13 +75,14 @@ class Service:
     
     def do_action_with_metrics(self, slice_index, assigned_env):
         slice_execution_time = 0
-        self.assigned_slices_count += 1
         start_time = time.time()
-        output = self._do_action(slice_index, assigned_env)
+        request_sent_time = time.time()
+        slice_id, output, throughput, request_receive_time = self._do_action(slice_index, assigned_env)
         end_time = time.time()
         self._save_output(slice_index, output)
-        slice_execution_time = (end_time - start_time) * 1000 # convert seconds to ms
-        return slice_execution_time
+        slice_execution_time = (end_time - start_time)
+        communication_time = request_receive_time - request_sent_time 
+        return slice_id, slice_execution_time, throughput, communication_time
 
     def merge_slices(self):
         pass

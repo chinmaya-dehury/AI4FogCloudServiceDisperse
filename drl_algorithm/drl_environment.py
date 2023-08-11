@@ -145,13 +145,13 @@ class Environment:
 		slice_index = selected_slice.slice_index
 		assigned_env = selected_slice.assigned_env
 		print(f"\t\tStarting assign ->  Service{service.id} Slice{slice_index} to {ENVIRONMENT_NAMES[assigned_env]}")
-		slice_execution_time = service.do_action_with_metrics(slice_index, assigned_env)
-		slice_info = self._calculate_slice_reward(user, service, slice_index, assigned_env, slice_execution_time)
+		slice_id, slice_execution_time, throughput, communication_time = service.do_action_with_metrics(slice_index, assigned_env)
+		slice_info = self._calculate_slice_reward(user, service, slice_index, assigned_env, slice_id, slice_execution_time, throughput, communication_time)
 		print(f"\t\tEnding assign ->  Service{service.id} Slice{slice_index} to {ENVIRONMENT_NAMES[assigned_env]}")
 		return slice_info
 
 	# calculate reward function
-	def _calculate_slice_reward(self, user, service, slice_index, assigned_env, slice_execution_time):
+	def _calculate_slice_reward(self, user, service, slice_index, assigned_env, slice_id, slice_execution_time, throughput, communication_time):
 		reward = 0
 
 		user_priority = user.get_user_priority()
@@ -180,6 +180,9 @@ class Environment:
 		if environment_latency == 0:
 			environment_latency = 0.1
 
+		slice_cpu_usage = round(slice_cpu_demand/available_cpu, 3) * 100
+		slice_mem_usage = round(slice_mem_demand/available_mem, 3) * 100
+
 		slice_size_ratio = round(slice_size/input_size, 3)
 		cpu_demand_ratio = round(slice_cpu_demand/available_cpu, 3)
 		mem_demand_ratio = round(slice_mem_demand/available_mem, 3)
@@ -201,6 +204,7 @@ class Environment:
 			reward = -reward
 
 		slice_info = SliceInfo(
+			slice_id = slice_id,
 			service = service,
 			service_priority = service_priority,
 			slice_index = slice_index,
@@ -210,10 +214,11 @@ class Environment:
 			total_cpu_demand=service.get_cpu_demand(),
 			total_mem_demand=service.get_mem_demand(),
 			slice_reward=reward,
-			slice_frame_count = service.get_slice_frame_count(slice_index),
+			slice_throughput = throughput,
+			slice_communication_time = communication_time,
 			slice_execution_time = slice_execution_time,
-			slice_cpu_demand_ratio=cpu_demand_ratio*100,
-			slice_mem_demand_ratio=mem_demand_ratio*100
+			slice_cpu_usage=slice_cpu_usage,
+			slice_mem_usage=slice_mem_usage
 		)
 
 		return slice_info
@@ -257,6 +262,7 @@ class Environment:
 					assigned_env = self._get_environment_by_slice(slice)
 					if assigned_env != 0:
 						slice_info = SliceInfo(
+							slice_id = 0,
 							service = service,
 							service_priority = service_priority,
 							slice_index = slice_index,
@@ -266,10 +272,11 @@ class Environment:
 							total_cpu_demand=0,
 							total_mem_demand=0,
 							slice_reward=0,
-							slice_frame_count=0,
+							slice_communication_time=0,
+							slice_throughput=0,
 							slice_execution_time=0,
-							slice_cpu_demand_ratio=0,
-							slice_mem_demand_ratio=0
+							slice_cpu_usage=0,
+							slice_mem_usage=0
 						)
 						selected_slices.append(slice_info)
 				i += 1

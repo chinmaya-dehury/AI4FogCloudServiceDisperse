@@ -1,5 +1,6 @@
 import os
-import cv2
+import pyaudio
+from pydub import AudioSegment
 import time
 import torch
 import shutil
@@ -7,7 +8,7 @@ import random
 import threading
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
-from c_service_1 import Service1
+from c_service_3 import Service3
 from drl_model import DRLModel
 from drl_environment import Environment
 import h_utils_state_space as ssutils
@@ -15,7 +16,7 @@ from c_user_factory import generate_users
 from c_system_modelling import set_users_priorities
 from drl_agent_factory import generate_agent
 import h_utils as utils
-from h_configs import SERVICE1_OUTPUT_PATH_LIST, SERVICE1_FOG_ENDPOINT, SERVICE1_CLOUD_ENDPOINT, \
+from h_configs import SERVICE3_OUTPUT_PATH_LIST, SERVICE3_FOG_ENDPOINT, SERVICE3_CLOUD_ENDPOINT, \
     SERVICE_SENSITIVITY, DynamicParams, INFERENCE_RUN_TIME
 
 ### GENERAL
@@ -25,9 +26,9 @@ output_stream_folder = "output_stream"
 semaphore = threading.Semaphore(value=1)
 
 def run_inference():
-    watcher_thread = threading.Thread(target=start_watcher, args=(output_stream_folder,))
-    watcher_thread.start()
-    watcher_thread.join()
+    # watcher_thread = threading.Thread(target=start_watcher, args=(output_stream_folder,))
+    # watcher_thread.start()
+    # watcher_thread.join()
     if os.path.exists(plot_folder):
         shutil.rmtree(plot_folder)
     if os.path.exists(input_stream_folder):
@@ -42,115 +43,119 @@ def run_inference():
 
 ### INPUT PART
 def input_run_stream():
-    # setup settings
-    slice_index = 0
-    service_id = 24
-    current_slice_frame = 0
-    current_sr_frame = 0
-    out_slice = None
-    out_sr = None
-    start_throughput_time = time.time()
     request_sent_time_smartgateway = time.time()
+
+    # general settings
+    model_threads = []
     timestap_h = 6
-    # setup webcam settings
-    cap = cv2.VideoCapture("input/streaming.mp4") #cv2.VideoCapture(0)
-    if not cap.isOpened():
-        raise IOError("Cannot open webcam")
-    fps = cap.get(cv2.CAP_PROP_FPS)
-    frame_slice_sec = int(fps * 1)
-    frame_sr_sec = int(fps * timestap_h)
-    total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
-    cap.set(cv2.CAP_PROP_POS_FRAMES, ((service_id-1)*frame_sr_sec))
-    while cap.isOpened():
-        # service_id increments as a counter, so don't need to additional "timestap_counter" here
-        timestap = timestap_h * service_id 
-        ret, frame = cap.read()
-        if not ret:
-            break
-        cv2.imshow('Input', frame)
-        if cv2.waitKey(25) & 0xFF == ord('q'):
-            break
-        request_receive_time_smartgateway = time.time()
-        smartgateway_commtimes = request_receive_time_smartgateway - request_sent_time_smartgateway
-        # frames tracker
-        current_slice_frame += 1
-        current_sr_frame += 1
+    service_id = 1
+    slice_index = 0
+    current_part = 0
+    audio_path = f"input/streaming.wav"
+
+    # audio settings
+    audio_sr = []
+    audio_parts = {}
+    audio_parts_len = 0
+    chunk_size = 1024 # default chuck size value for playing audio
+    audio = AudioSegment.from_file(audio_path)
+    audio = audio[(service_id-1) * 1000:]
+    audio_len = len(audio) / 1000 # convert milliseconds to seconds
+    audio_channels = audio.channels
+    audio_frame_rate = audio.frame_rate
+    audio_raw_data = audio.raw_data
+    p = pyaudio.PyAudio()
+    stream = p.open(format=p.get_format_from_width(audio.sample_width),
+                    channels=audio_channels,
+                    rate=audio_frame_rate,
+                    output=True)
+
+    # play audio
+    idx = 0
+    start_time = time.time()
+    start_throughput_time = time.time()
+    while idx < len(audio_raw_data):
+        timestap = timestap_h * service_id
+
         # sr folder, file setting
         sr_folder = f"sr{service_id}"
         out_sr_folder = f"{input_stream_folder}/{sr_folder}"
-        sr_name = f"sr{service_id}.mp4"
-        out_sr_name = f"{out_sr_folder}/{sr_name}"
+        sr_audio_name = f"sr{service_id}.wav"
+        out_sr_audio_name = f"{out_sr_folder}/{sr_audio_name}"
+        if not os.path.exists(out_sr_folder):
+            os.makedirs(out_sr_folder)
+
         # slice folder, file setting
         slice_folder = f"{sr_folder}_slices"
         out_slice_folder = f"{input_stream_folder}/{sr_folder}/{slice_folder}"
-        slice_name = f"sr{service_id}_{slice_index}.mp4"
-        out_slice_name = f"{out_slice_folder}/{slice_name}"
-        # save input frames
-        if out_slice is None:
-            if not os.path.exists(out_slice_folder):
-                os.makedirs(out_slice_folder)
-            out_slice = cv2.VideoWriter(f"{out_slice_name}", cv2.VideoWriter_fourcc(*'mp4v'), fps, (int(cap.get(3)), int(cap.get(4))))
-        if out_sr is None:
-            if not os.path.exists(out_sr_folder):
-                os.makedirs(out_sr_folder)
-            out_sr = cv2.VideoWriter(f"{out_sr_name}", cv2.VideoWriter_fourcc(*'mp4v'), fps, (int(cap.get(3)), int(cap.get(4))))
-        if current_slice_frame <= frame_slice_sec:
-            out_slice.write(frame)
-            if current_slice_frame == frame_slice_sec:
-                out_slice.release()
-                out_slice = None
-                slice_index += 1
-                current_slice_frame = 0
-        if current_sr_frame <= frame_sr_sec:
-            out_sr.write(frame)
-            if current_sr_frame == frame_sr_sec:
-                if out_sr is not None:
-                    out_sr.release()
-                    out_sr = None
-                slices_count = slice_index
-                cap_sg = cv2.VideoCapture(out_sr_name)
-                total_frames_smartgateway = int(cap_sg.get(cv2.CAP_PROP_FRAME_COUNT))
-                cap_sg.release()
+        slice_audio_name = f"sr{service_id}_{slice_index}.wav"
+        out_slice_audio_name = f"{out_slice_folder}/{slice_audio_name}"
+        if not os.path.exists(out_slice_folder):
+            os.makedirs(out_slice_folder)
+
+        chunk = audio_raw_data[idx:idx + chunk_size]
+        stream.write(chunk)
+        idx += chunk_size
+
+        request_receive_time_smartgateway = time.time()
+        smartgateway_commtimes = request_receive_time_smartgateway - request_sent_time_smartgateway
+
+        # save played chunk of audio
+        if not current_part in audio_parts:
+            audio_parts[current_part] = []
+        audio_parts[current_part].extend(chunk)
+
+        # save 1 sec part of audio
+        end_time = time.time()
+        passed_time = end_time-start_time
+        if abs(passed_time - 1.0) <= 0.1:
+            # audio slice handling
+            audio_sr.extend(audio_parts[current_part])
+            audio_part = AudioSegment(bytes(audio_parts[current_part]), sample_width=2, channels=audio_channels, frame_rate=audio_frame_rate)
+            audio_part.export(out_slice_audio_name, format="wav")
+            audio_parts[current_part] = []
+            audio_part_len = len(audio_part) / 1000  # convert milliseconds to seconds
+            audio_parts_len += audio_part_len
+
+            # resetting
+            current_part += 1
+            slice_index += 1
+            start_time = time.time()
+            if (slice_index >= 6 or (slice_index < 6 and abs(audio_len - audio_parts_len) <= 0.5)):
+                # audio sr handling
+                audio_sr = AudioSegment(bytes(audio_sr), sample_width=2, channels=audio_channels, frame_rate=audio_frame_rate)
+                audio_sr.export(out_sr_audio_name, format="wav")
+
                 end_throughput_time = time.time() # end throughtput time before assinging envs
-                model_thread = threading.Thread(target=run_model_thread, args=(service_id, timestap, slices_count, smartgateway_commtimes, total_frames_smartgateway, start_throughput_time, end_throughput_time))
-                model_thread.start()
+                slices_count = slice_index
+                total_frames_smartgateway = len(audio_sr) / 1000
                 start_throughput_time = time.time()
-                service_id += 1
+                model_thread = threading.Thread(target=run_model_thread, args=(service_id, timestap, slices_count, smartgateway_commtimes, total_frames_smartgateway, start_throughput_time, end_throughput_time))
+                model_threads.append(model_thread)
+                model_thread.start()
+
+
                 slice_index = 0
-                current_sr_frame = 0
-        # frames that less than 6 seconds
-        current_frame = int(cap.get(cv2.CAP_PROP_POS_FRAMES))
-        if current_frame == total_frames:
-            if out_sr is not None:
-                out_sr.release()
-                out_sr = None
-            slices_count = slice_index + 1
-            cap_sg = cv2.VideoCapture(out_sr_name)
-            total_frames_smartgateway = int(cap_sg.get(cv2.CAP_PROP_FRAME_COUNT))
-            cap_sg.release()
-            end_throughput_time = time.time() # end throughtput time before assinging envs
-            model_thread = threading.Thread(target=run_model_thread, args=(service_id, timestap, slices_count, smartgateway_commtimes, total_frames_smartgateway, start_throughput_time, end_throughput_time))
-            model_thread.start()
-            start_throughput_time = time.time()
+                service_id += 1
+                audio_sr = []
+            # logging
+            #print(f"current_part = {current_part},  audio_len = {audio_len} seconds,  audio_parts_len = {audio_parts_len} seconds,  ")
         request_sent_time_smartgateway = time.time()
 
-    cap.release()
+    for model_thread in model_threads:
+        model_thread.join()
+    stream.stop_stream()
+    stream.close()
+    p.terminate()
 
 
 ### OUTPUT PART
-def output_play_video(video_path):
-    cap = cv2.VideoCapture(video_path)
-
-    while cap.isOpened():
-        ret, frame = cap.read()
-        if ret:
-            cv2.imshow('Output', frame)
-            if cv2.waitKey(25) & 0xFF == 27:
-                break
-        else:
-            break
-
-    cap.release()
+def output_play_video(fragment_path):
+    fragment = ""
+    with open(fragment_path, "r") as file:
+        for line in file:
+            fragment += f"{line.strip()} "  
+    # print(fragment)  
 
 def start_watcher(path_to_watch):
     event_handler = FolderWatcher()
@@ -193,7 +198,7 @@ def run_model_thread(service_id, timestap, slices_count, smartgateway_commtimes,
         time.sleep(3)
 
 def run_model(service_id, timestap, slices_count, smartgateway_commtimes, total_frames_smartgateway, start_throughput_time, end_throughput_time):
-    app_type = 1
+    app_type = 3
     service_count = 1
     DynamicParams.set_params(app_type, service_count, slices_count)
     run_model_helper(service_id, timestap, smartgateway_commtimes, total_frames_smartgateway, start_throughput_time, end_throughput_time)
@@ -216,14 +221,14 @@ def run_model_helper(service_id, timestap, smartgateway_commtimes, total_frames_
     # generate services for each users
     user = users[0]
     service_sensitity = random.choice(SERVICE_SENSITIVITY)
-    service = Service1(
+    service = Service3(
                 id = service_id, 
                 user = user,
                 sensitivity = service_sensitity, 
                 slice_count = DynamicParams.get_params()['slice_count'], 
-                input_path_list = [f"{input_stream_folder}/sr{service_id}/sr{service_id}.mp4"], 
-                output_path_list = SERVICE1_OUTPUT_PATH_LIST,
-                api_endpoint_list = [SERVICE1_FOG_ENDPOINT, SERVICE1_CLOUD_ENDPOINT]
+                input_path_list = [f"{input_stream_folder}/sr{service_id}/sr{service_id}.wav"], 
+                output_path_list = SERVICE3_OUTPUT_PATH_LIST,
+                api_endpoint_list = [SERVICE3_FOG_ENDPOINT, SERVICE3_CLOUD_ENDPOINT]
             )
     slice_sizes = service.get_slices_size_from_disk()
     service.set_slices_size(slice_sizes)
@@ -284,8 +289,8 @@ def run_model_helper(service_id, timestap, smartgateway_commtimes, total_frames_
         agent.train_long_memory()
 
     # copy to output stream folder
-    file_name = f"{SERVICE1_OUTPUT_PATH_LIST[1]}_final.{SERVICE1_OUTPUT_PATH_LIST[2]}"
-    src_path = SERVICE1_OUTPUT_PATH_LIST[0] + "/" + f"user{user.id}" + '/' + f"service{service.id}" + "/" + file_name
+    file_name = f"{SERVICE3_OUTPUT_PATH_LIST[1]}_final.{SERVICE3_OUTPUT_PATH_LIST[2]}"
+    src_path = SERVICE3_OUTPUT_PATH_LIST[0] + "/" + f"user{user.id}" + '/' + f"service{service.id}" + "/" + file_name
     dest_path = output_stream_folder + "/" + file_name
     if os.path.exists(src_path):
         shutil.copyfile(src_path, dest_path)
@@ -301,8 +306,6 @@ def get_model_action(model, state, output_layer_size):
 
 def metrics_logger(service_id, timestap, slices_tracker, smartgateway_commtimes, total_frames_smartgateway, start_throughput_time, end_throughput_time):
     metrics_id = f"{service_id}_{timestap}"
-
-    print(f"total_frames_smartgateway = {total_frames_smartgateway},  start_throughput_time = {start_throughput_time},  end_throughput_time = {end_throughput_time}")
 
     passed_throughput_time = end_throughput_time-start_throughput_time
     passed_throughput_time = passed_throughput_time if passed_throughput_time > 1 else 1

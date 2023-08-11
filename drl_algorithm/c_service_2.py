@@ -66,14 +66,17 @@ class Service2(Service):
     def _do_action(self, slice_index, assigned_to_fog):
         slice_path_list = self._get_slice_path_list(slice_index)
         endpoint_url = self.api_endpoint_list[0] if assigned_to_fog == 1 else self.api_endpoint_list[1]
+        slice_id = f"{self.id}_{slice_index}"
         files = {
             'audio': open(slice_path_list[0], 'rb'),
             'subtitle': open(slice_path_list[1], 'rb'),
         }
-        response = requests.post(url = endpoint_url, files=files)
+        response = requests.post(url = endpoint_url, files=files, data={'request_id':slice_id})
         response = json.loads(response.content)
         output = response['output']
-        return output
+        throughput = response['total_throughput'] if 'total_throughput' in response else 0
+        request_receive_time = response['request_receive_time'] if 'request_receive_time' in response else 0
+        return slice_id, output, throughput, request_receive_time
 
     def _save_output(self, slice_index, output):
         slice_output_path = self._get_slice_output_path(slice_index)

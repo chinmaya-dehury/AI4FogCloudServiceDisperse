@@ -1,5 +1,6 @@
 import os
 import ast
+import json
 import random
 import shutil
 import numpy as np
@@ -7,14 +8,12 @@ import pandas as pd
 from datetime import datetime
 import matplotlib.pyplot as plt
 from tcp_latency import measure_latency
-from c_env_cloud import Cloud
-from c_env_fog import Fog
 from h_configs import DynamicParams, PLOT_FOLDER, LOG_FOLDER, LOG_OUTPUT_PATH, \
     PLOT_LOG_REWARDS_OUTPUT_PATH, PLOT_LOG_LOSSES_OUTPUT_PATH, PLOT_LOG_SUCCESS_OUTPUT_PATH, \
     PLOT_PNG_REWARDS_OUTPUT_PATH, PLOT_PNG_LOSSES_OUTPUT_PATH, PLOT_PNG_TOGETHER_OUTPUT_PATH, PLOT_PNG_SUCCESS_OUTPUT_PATH, \
     PLOT_LOG_FOG_PERCENTAGE_OUTPUT_PATH, PLOT_LOG_CLOUD_PERCENTAGE_OUTPUT_PATH, PLOT_PNG_FOG_PERCENTAGE_OUTPUT_PATH, PLOT_PNG_CLOUD_PERCENTAGE_OUTPUT_PATH, \
     PLOT_LOG_FOG_CPU_PERCENTAGE_OUTPUT_PATH, PLOT_LOG_CLOUD_CPU_PERCENTAGE_OUTPUT_PATH, PLOT_LOG_FOG_MEM_PERCENTAGE_OUTPUT_PATH, PLOT_LOG_CLOUD_MEM_PERCENTAGE_OUTPUT_PATH, \
-    PLOT_PNG_CPU_PERCENTAGE_OUTPUT_PATH, PLOT_PNG_MEM_PERCENTAGE_OUTPUT_PATH, PLOT_PNG_SLICES_PERCENTAGE_OUTPUT_PATH, PLOT_LOG_MISSED_DEADLINES_OUTPUT_PATH, \
+    PLOT_PNG_SLICES_PERCENTAGE_OUTPUT_PATH, PLOT_LOG_MISSED_DEADLINES_OUTPUT_PATH, \
     PLOT_PNG_MISSED_DEADLINES_OUTPUT_PATH, \
     PLOT_LOG_THROUGHPUTS_FOG_OUTPUT_PATH, PLOT_LOG_THROUGHPUTS_CLOUD_OUTPUT_PATH, PLOT_LOG_THROUGHPUTS_SMARTGATEWAY_OUTPUT_PATH, \
     PLOT_LOG_COMMTIMES_FOG_OUTPUT_PATH, PLOT_LOG_COMMTIMES_CLOUD_OUTPUT_PATH, PLOT_LOG_COMMTIMES_SMARTGATEWAY_OUTPUT_PATH
@@ -234,25 +233,6 @@ def get_slices_percentage_plot_file():
     return plot_file
 
 
-def get_cpu_percentage_plot_file():
-    # create log folder if not exists
-    if not os.path.exists(PLOT_FOLDER):
-         os.makedirs(PLOT_FOLDER)
-
-    plot_file = PLOT_PNG_CPU_PERCENTAGE_OUTPUT_PATH.format(PLOT_FOLDER, DynamicParams.get_params()['service_type'], (DynamicParams.get_params()['service_count']*DynamicParams.get_params()['slice_count']))
-
-    return plot_file
-
-def get_mem_percentage_plot_file():
-    # create log folder if not exists
-    if not os.path.exists(PLOT_FOLDER):
-         os.makedirs(PLOT_FOLDER)
-
-    plot_file = PLOT_PNG_MEM_PERCENTAGE_OUTPUT_PATH.format(PLOT_FOLDER, DynamicParams.get_params()['service_type'], (DynamicParams.get_params()['service_count']*DynamicParams.get_params()['slice_count']))
-
-    return plot_file
-
-
 def get_missed_deadlines_plot_file():
     # create log folder if not exists
     if not os.path.exists(PLOT_FOLDER):
@@ -334,19 +314,19 @@ def debug_services(services, is_printable=False):
                     "\n\n"
     debug(log_msg, is_printable)
 
-def debug_fog(is_printable=False):
-    log_msg = "Fog: \n" + \
-        f"\t\tid = {Fog.get_id()}\n" + \
-        f"\t\tavailable_cpu = {Fog.get_available_cpu()}, available_mem = {Fog.get_available_memory()}" +\
-        "\n\n"
-    debug(log_msg, is_printable)
+# def debug_fog(is_printable=False):
+#     log_msg = "Fog: \n" + \
+#         f"\t\tid = {Fog.get_id()}\n" + \
+#         f"\t\tavailable_cpu = {Fog.get_available_cpu()}, available_mem = {Fog.get_available_memory()}" +\
+#         "\n\n"
+#     debug(log_msg, is_printable)
 
-def debug_cloud(is_printable=False):
-    log_msg = "Cloud: \n" + \
-        f"\t\tid = {Cloud.get_id()}\n" + \
-        f"\t\tavailable_cpu = {Cloud.get_available_cpu()}, available_mem = {Cloud.get_available_memory()}" +\
-        "\n\n"
-    debug(log_msg, is_printable)
+# def debug_cloud(is_printable=False):
+#     log_msg = "Cloud: \n" + \
+#         f"\t\tid = {Cloud.get_id()}\n" + \
+#         f"\t\tavailable_cpu = {Cloud.get_available_cpu()}, available_mem = {Cloud.get_available_memory()}" +\
+#         "\n\n"
+#     debug(log_msg, is_printable)
 
 def debug_rewards(rewards, is_printable=False):
 
@@ -438,11 +418,8 @@ def debug_fog_cpu_percentage(percentages, is_printable=False):
     log_file = get_fog_cpu_percentage_log_file()
 
     # write to log
+    percentages_text = json.dumps(percentages)
     logfile = open(log_file, "w")
-    percentages_text = '['
-    for success in percentages:
-        percentages_text += f'{success},'
-    percentages_text += ']'
     logfile.write(percentages_text)
     logfile.write("\n")
     logfile.close()
@@ -455,11 +432,8 @@ def debug_cloud_cpu_percentage(percentages, is_printable=False):
     log_file = get_cloud_cpu_percentage_log_file()
 
     # write to log
+    percentages_text = json.dumps(percentages)
     logfile = open(log_file, "w")
-    percentages_text = '['
-    for success in percentages:
-        percentages_text += f'{success},'
-    percentages_text += ']'
     logfile.write(percentages_text)
     logfile.write("\n")
     logfile.close()
@@ -473,11 +447,8 @@ def debug_fog_mem_percentage(percentages, is_printable=False):
     log_file = get_fog_mem_percentage_log_file()
 
     # write to log
+    percentages_text = json.dumps(percentages)
     logfile = open(log_file, "w")
-    percentages_text = '['
-    for success in percentages:
-        percentages_text += f'{success},'
-    percentages_text += ']'
     logfile.write(percentages_text)
     logfile.write("\n")
     logfile.close()
@@ -490,11 +461,8 @@ def debug_cloud_mem_percentage(percentages, is_printable=False):
     log_file = get_cloud_mem_percentage_log_file()
 
     # write to log
+    percentages_text = json.dumps(percentages)
     logfile = open(log_file, "w")
-    percentages_text = '['
-    for success in percentages:
-        percentages_text += f'{success},'
-    percentages_text += ']'
     logfile.write(percentages_text)
     logfile.write("\n")
     logfile.close()
@@ -527,11 +495,8 @@ def debug_throughput(throughputs, envtype, is_printable=False):
     log_file = get_throughputs_log_file(envtype)
 
     # write to log
+    throughput_text = json.dumps(throughputs)
     logfile = open(log_file, "w")
-    throughput_text = '['
-    for throughput in throughputs:
-        throughput_text += f'{throughput},'
-    throughput_text += ']'
     logfile.write(throughput_text)
     logfile.write("\n")
     logfile.close()
@@ -545,11 +510,8 @@ def debug_commtime(throughputs, envtype, is_printable=False):
     log_file = get_commtimes_log_file(envtype)
 
     # write to log
+    throughput_text = json.dumps(throughputs)
     logfile = open(log_file, "w")
-    throughput_text = '['
-    for throughput in throughputs:
-        throughput_text += f'{throughput},'
-    throughput_text += ']'
     logfile.write(throughput_text)
     logfile.write("\n")
     logfile.close()
@@ -562,10 +524,20 @@ def debug_commtime(throughputs, envtype, is_printable=False):
 
 def f_read_plot_list(path):
     ls = []
-    with open(path) as file_in:
-        for line in file_in:
-            ls = ast.literal_eval(line)
-            break
+    if os.path.exists(path):
+        with open(path) as file_in:
+            for line in file_in:
+                ls = ast.literal_eval(line)
+                break
+    return ls
+
+def f_read_plot_dict(path):
+    ls = {}
+    if os.path.exists(path):
+        with open(path) as file_in:
+            for line in file_in:
+                ls = ast.literal_eval(line)
+                break
     return ls
 
 def f_save_plot_reward(elements, x_title, y_title, output_path):
@@ -650,3 +622,8 @@ def cum_avg(elements):
         ca += elements[i]/(i+1)
         ca_list.append(ca)
     return ca_list
+
+def get_sum_in_dict(adict, akey, new_val):
+    old_val = adict[akey] if akey in adict else 0
+    new_val += old_val
+    return new_val
