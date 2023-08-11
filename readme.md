@@ -1,4 +1,4 @@
-# AI-powered cloud usage controlling system in smart home environment
+# Resource optimization with DRL-driven real time service placement strategy in Edge-cloud continuum.
 In a smart home environment, we are using cloud computing for powerful processing and storage of big data that are generated from IoT devices. Further we are also using Fog to handle the data in a more real time manner. Whenever we request for any service, the service provider take advantage of the resource available at fog and cloud. Fog resources are used to provide more real-time, sensitive services that require less computing and storage resources. On the other hand, cloud resources are used to keep the data (big data) for future purpose and process them. Sometimes, it is difficult to fulfil all SLA constraints only with the cloud resource and that's where the fog resource comes into the picture.
 
 This thesis topic mainly focuses on efficient utilisation of cloud and fog resources. An AI model (most probably the DRL) needs to be developed to decide when to use fog computing and when to use cloud computing.
